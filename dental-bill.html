@@ -4,11 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dr. Mohana's Dental Care - Bill Generator</title>
-    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
-    <!-- html2pdf.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         :root {
@@ -21,234 +19,157 @@
             --bg-shell: #f4f7f8;
             --bg-bill: #ffffff;
             --danger: #c0392b;
-            --danger-hover: #e74c3c;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
             font-family: 'Inter', system-ui, sans-serif;
             background-color: var(--bg-shell);
             color: var(--text-main);
             line-height: 1.5;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
         }
 
-        /* Toolbar */
+        /* ==================== TOOLBAR ==================== */
         .toolbar {
             position: sticky;
             top: 0;
-            background-color: white;
+            background: white;
             box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            padding: 1rem 2rem;
+            padding: 12px 24px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             z-index: 100;
             flex-wrap: wrap;
-            gap: 1rem;
+            gap: 10px;
         }
-
         .toolbar-brand {
             display: flex;
             align-items: center;
-            gap: 0.75rem;
+            gap: 8px;
             font-family: 'Playfair Display', serif;
             font-weight: 700;
-            font-size: 1.25rem;
+            font-size: 1.15rem;
             color: var(--primary);
         }
-
-        .toolbar-brand svg {
-            width: 24px;
-            height: 24px;
-            fill: var(--primary);
-        }
-
-        .action-buttons {
-            display: flex;
-            gap: 0.75rem;
-            flex-wrap: wrap;
-        }
+        .toolbar-brand svg { width: 22px; height: 22px; fill: var(--primary); }
+        .action-buttons { display: flex; gap: 10px; flex-wrap: wrap; }
 
         button {
-            padding: 0.5rem 1rem;
+            padding: 8px 16px;
             border: none;
             border-radius: 6px;
             font-family: 'Inter', sans-serif;
             font-weight: 500;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             cursor: pointer;
-            display: flex;
+            display: inline-flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 6px;
             transition: all 0.2s ease;
         }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-light); }
+        .btn-secondary { background: white; color: var(--primary); border: 1px solid var(--primary); }
+        .btn-secondary:hover { background: var(--accent); }
+        .btn-danger { background: white; color: var(--danger); border: 1px solid var(--danger); }
+        .btn-danger:hover { background: #fdf2f2; }
 
-        .btn-primary {
-            background-color: var(--primary);
-            color: white;
-        }
-        .btn-primary:hover {
-            background-color: var(--primary-light);
-        }
-
-        .btn-secondary {
-            background-color: white;
-            color: var(--primary);
-            border: 1px solid var(--primary);
-        }
-        .btn-secondary:hover {
-            background-color: var(--accent);
-        }
-
-        .btn-danger {
-            background-color: white;
-            color: var(--danger);
-            border: 1px solid var(--danger);
-        }
-        .btn-danger:hover {
-            background-color: #fdf2f2;
-        }
-
-        /* App Shell */
+        /* ==================== APP SHELL ==================== */
         .app-shell {
-            flex: 1;
-            padding: 2rem 1rem;
+            padding: 30px 16px;
             display: flex;
             justify-content: center;
         }
 
-        /* Bill Container */
+        /* ==================== BILL ==================== */
         .bill-container {
-            background-color: var(--bg-bill);
-            width: 794px; /* A4 width at 96dpi */
-            max-width: 100%;
-            min-height: 1123px; /* A4 height at 96dpi */
+            background: var(--bg-bill);
+            width: 760px;
+            min-height: 1060px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.1);
             border-radius: 4px;
-            padding: 40px 50px;
-            position: relative;
-            overflow: hidden;
+            padding: 36px 44px;
+            display: flex;
+            flex-direction: column;
         }
 
-        /* Header Layout */
-        .bill-header {
+        /* Header */
+        .bill-header { text-align: center; margin-bottom: 12px; }
+        .clinic-name {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 10px;
+            line-height: 1.15;
+        }
+        .header-details {
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            margin-bottom: 20px;
         }
-
         .header-left {
-            flex: 0 0 auto;
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
-
-        .tooth-icon {
-            width: 60px;
-            height: 60px;
-            fill: var(--primary);
+        .clinic-logo {
+            width: 70px;
+            height: 70px;
+            object-fit: contain;
         }
+        .doctor-info { text-align: left; }
+        .doctor-name { font-weight: 700; font-size: 1.05rem; margin-bottom: 1px; }
+        .doctor-title { font-size: 0.85rem; color: var(--text-muted); }
 
-        .header-center {
-            text-align: center;
-            flex: 1;
-            padding: 0 20px;
-        }
-
-        .clinic-name {
-            font-family: 'Playfair Display', serif;
-            font-size: 2.5rem;
-            font-weight: 700;
-            color: var(--primary);
-            margin-bottom: 5px;
-            line-height: 1.1;
-        }
-
-        .doctor-name {
-            font-weight: 700;
-            font-size: 1.1rem;
-            margin-bottom: 2px;
-        }
-
-        .doctor-title {
-            font-size: 0.9rem;
-            color: var(--text-muted);
-            margin-bottom: 8px;
-        }
-
-        .contact-info {
-            font-size: 0.95rem;
-            font-weight: 600;
-            margin-bottom: 5px;
-        }
-
-        .consulting-hours {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            line-height: 1.4;
-        }
-
+        .header-right { text-align: right; }
+        .contact-info { font-size: 0.9rem; font-weight: 600; margin-bottom: 2px; }
+        .consulting-hours { font-size: 0.78rem; color: var(--text-muted); line-height: 1.35; }
         .appointment-label {
             display: inline-block;
-            background-color: var(--primary);
+            background: var(--primary);
             color: white;
             padding: 2px 10px;
-            border-radius: 12px;
-            font-size: 0.75rem;
+            border-radius: 10px;
+            font-size: 0.72rem;
             font-weight: 600;
-            margin-top: 5px;
+            margin-top: 4px;
         }
 
-        .header-right {
-            flex: 0 0 auto;
-            width: 80px;
-            height: 80px;
-        }
-
-        .decorative-image {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 8px;
-            border: 2px solid var(--accent);
-        }
-
-        hr {
+        .bill-divider {
             border: none;
             border-top: 2px solid var(--primary);
-            margin: 15px 0;
+            margin: 12px 0;
             opacity: 0.5;
         }
 
         .services-strip {
             text-align: center;
-            font-size: 0.8rem;
+            font-size: 0.72rem;
             font-weight: 600;
             color: var(--primary);
-            margin-bottom: 10px;
-            line-height: 1.6;
+            margin-bottom: 6px;
+            line-height: 1.5;
         }
-
         .address-line {
             text-align: center;
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             color: var(--text-muted);
-            margin-bottom: 30px;
+            margin-bottom: 20px;
         }
 
-        /* Bill Body Layout */
+        /* Form area */
+        .bill-form { display: flex; flex-direction: column; flex: 1; }
+
         .bill-meta {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 30px;
+            align-items: center;
+            margin-bottom: 18px;
             font-weight: 600;
+            font-size: 0.95rem;
         }
 
         .input-inline {
@@ -256,113 +177,98 @@
             border-bottom: 1px dashed var(--border-color);
             background: transparent;
             font-family: 'Inter', sans-serif;
-            font-size: 1rem;
+            font-size: 0.95rem;
             color: var(--text-main);
-            padding: 2px 5px;
+            padding: 2px 4px;
             outline: none;
             transition: border-color 0.2s;
         }
-
         .input-inline:focus {
             border-bottom-color: var(--primary);
-            background-color: var(--accent);
+            background: var(--accent);
         }
+        .input-inline::placeholder { color: #cbd5e0; font-weight: 400; }
 
-        .input-inline::placeholder {
-            color: #cbd5e0;
-            font-weight: 400;
-        }
+        .bill-no-input { width: 100px; }
+        .date-input { width: 140px; font-family: 'Inter', sans-serif; }
 
-        .bill-no-input { width: 120px; }
-        .date-input { width: 150px; font-family: 'Inter', sans-serif; }
-        
         .patient-info {
             line-height: 2;
-            margin-bottom: 30px;
-            font-size: 1.05rem;
+            margin-bottom: 20px;
+            font-size: 0.95rem;
         }
+        .patient-name-input { width: 300px; font-weight: 500; }
+        .age-input { width: 50px; text-align: center; }
 
-        .patient-name-input { width: 350px; font-weight: 500; }
-        .age-input { width: 60px; text-align: center; }
-
-        .procedures-section {
-            margin-bottom: 30px;
-        }
-
+        .procedures-section { margin-bottom: 20px; }
         .procedure-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
+            white-space: nowrap;
         }
-
         .procedure-left {
             display: flex;
-            align-items: baseline;
-            gap: 10px;
+            align-items: center;
+            gap: 8px;
             flex: 1;
+            min-width: 0;
         }
-
-        .procedure-name-input {
-            flex: 1;
-            max-width: 400px;
-        }
-
+        .procedure-left span { flex-shrink: 0; font-weight: 500; }
+        .procedure-name-input { flex: 1; min-width: 0; }
         .procedure-right {
             display: flex;
-            align-items: baseline;
-            gap: 10px;
+            align-items: center;
+            gap: 6px;
+            flex-shrink: 0;
+            margin-left: 12px;
         }
-
-        .procedure-date-input { width: 130px; }
+        .procedure-right label { font-weight: 500; flex-shrink: 0; }
+        .procedure-date-input { width: 120px; }
 
         .amount-section {
             line-height: 2;
-            margin-bottom: 60px;
-            font-size: 1.05rem;
+            font-size: 0.95rem;
         }
-
         .amount-input {
-            width: 150px;
+            width: 120px;
             font-weight: 600;
             text-align: right;
-            padding-right: 5px;
         }
+
+        /* Signatures pushed to bottom via flex spacer */
+        .bill-spacer { flex: 1; min-height: 40px; }
 
         .signatures-section {
             display: flex;
             justify-content: space-between;
-            margin-top: auto;
-            padding-top: 40px;
+            padding-top: 20px;
         }
-
-        .signature-box {
-            text-align: center;
-        }
-
+        .signature-box { text-align: center; }
         .signature-line {
-            width: 200px;
+            width: 180px;
             border-top: 1px solid var(--text-main);
-            margin-bottom: 8px;
+            margin-bottom: 6px;
         }
+        .signature-label { font-weight: 600; font-size: 0.9rem; }
 
-        .signature-label {
-            font-weight: 600;
-            font-size: 0.95rem;
-        }
-
-        /* Print Styles */
+        /* ==================== PRINT ==================== */
         @media print {
             @page {
                 size: A4 portrait;
-                margin: 0;
+                margin: 15mm 18mm;
             }
 
-            body {
-                background-color: white;
+            html, body {
+                width: 100%;
+                height: auto;
+                background: white;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
             }
 
-            .toolbar, .app-shell > *:not(.bill-container) {
+            .toolbar {
                 display: none !important;
             }
 
@@ -372,77 +278,102 @@
             }
 
             .bill-container {
-                box-shadow: none;
-                width: 100%;
-                height: 100%;
+                width: 100% !important;
                 max-width: none;
-                padding: 15mm 20mm;
+                height: 100vh;
+                box-shadow: none;
                 border-radius: 0;
+                padding: 0;
+                margin: 0;
+                page-break-inside: avoid;
+                display: flex !important;
+                flex-direction: column !important;
+            }
+
+            .bill-form {
+                display: flex !important;
+                flex-direction: column !important;
+                flex: 1 !important;
+            }
+
+            .bill-spacer {
+                flex: 1 !important;
+                min-height: 20px !important;
+            }
+
+            .bill-container * {
+                font-size: 105%;
+            }
+
+            .clinic-name {
+                font-size: 2rem !important;
+            }
+
+            /* Keep header-details as flex row in print */
+            .header-details {
+                display: flex !important;
+                flex-direction: row !important;
+                justify-content: space-between !important;
+            }
+            .header-left {
+                display: flex !important;
+                flex-direction: row !important;
+                align-items: center !important;
+            }
+            .header-right {
+                text-align: right !important;
+            }
+
+            /* Keep procedure rows as flex row */
+            .procedure-row {
+                display: flex !important;
+                flex-direction: row !important;
+                justify-content: space-between !important;
+                align-items: center !important;
+                white-space: nowrap !important;
+            }
+
+            .bill-meta {
+                display: flex !important;
+                flex-direction: row !important;
+                justify-content: space-between !important;
+            }
+
+            .signatures-section {
+                display: flex !important;
+                flex-direction: row !important;
+                justify-content: space-between !important;
             }
 
             .input-inline {
-                border-bottom: 1px solid var(--border-color); /* solid border for print readability if needed, or remove completely */
-                /* To make it look exactly like text instead of input on print: */
-                border-color: transparent !important; 
+                border: none !important;
+                border-bottom: 1px solid transparent !important;
                 background: transparent !important;
                 -webkit-appearance: none;
                 appearance: none;
             }
-
-            /* For print, we want the inputs to still have space or underline if empty, but maybe just plain text if filled. */
-            input:not(:placeholder-shown) {
-                border-bottom-color: transparent;
-            }
-            input:placeholder-shown {
-                border-bottom: 1px dashed var(--border-color);
-            }
         }
 
-        /* Responsive Styles */
-        @media (max-width: 1024px) {
-            .bill-container {
-                width: 90%;
-            }
-        }
-
-        @media (max-width: 767px) {
-            .toolbar {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            .action-buttons {
-                justify-content: center;
-            }
-            .app-shell {
-                padding: 1rem 0;
-            }
+        /* ==================== RESPONSIVE ==================== */
+        @media screen and (max-width: 800px) {
             .bill-container {
                 width: 100%;
-                padding: 20px 15px;
+                padding: 20px 16px;
                 border-radius: 0;
+                min-height: auto;
             }
-            .clinic-name {
-                font-size: 1.8rem;
-            }
-            .patient-name-input {
-                width: 200px;
-            }
-            .procedure-row {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 10px;
-            }
-            .procedure-right {
-                padding-left: 20px;
-            }
-            .procedure-name-input {
-                max-width: 100%;
-            }
-            .signatures-section {
-                flex-direction: column;
-                gap: 40px;
-                align-items: center;
-            }
+            .app-shell { padding: 10px 0; }
+            .clinic-name { font-size: 1.6rem; }
+            .header-details { flex-direction: column; align-items: center; gap: 12px; text-align: center; }
+            .header-left { flex-direction: column; text-align: center; }
+            .header-right { text-align: center; }
+            .doctor-info { text-align: center; }
+            .patient-name-input { width: 180px; }
+            .procedure-row { flex-wrap: wrap; white-space: normal; }
+            .procedure-right { margin-left: 20px; }
+            .signatures-section { flex-direction: column; gap: 30px; align-items: center; }
+            .toolbar { flex-direction: column; align-items: stretch; }
+            .action-buttons { justify-content: center; }
         }
     </style>
 </head>
@@ -451,30 +382,24 @@
     <!-- Toolbar -->
     <div class="toolbar">
         <div class="toolbar-brand">
-            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12,22C12,22 17,20.5 19,16.5C21,12.5 19,7 19,7C19,7 18.5,3.5 15,3C11.5,2.5 12,6 12,6C12,6 12.5,2.5 9,3C5.5,3.5 5,7 5,7C5,7 3,12.5 5,16.5C7,20.5 12,22 12,22Z" />
-            </svg>
+            <svg viewBox="0 0 24 24"><path d="M12,22C12,22 17,20.5 19,16.5C21,12.5 19,7 19,7C19,7 18.5,3.5 15,3C11.5,2.5 12,6 12,6C12,6 12.5,2.5 9,3C5.5,3.5 5,7 5,7C5,7 3,12.5 5,16.5C7,20.5 12,22 12,22Z"/></svg>
             Dr. Mohana's Clinic
         </div>
         <div class="action-buttons">
-            <button class="btn-primary" onclick="window.print()" aria-label="Print Bill">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+            <button class="btn-primary" onclick="handlePrint()" aria-label="Print Bill">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
                 Print
             </button>
             <button class="btn-secondary" onclick="downloadPDF()" aria-label="Download PDF">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
                 PDF
             </button>
-            <button class="btn-secondary" onclick="shareWhatsApp()" aria-label="Share via WhatsApp">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
-                WhatsApp
-            </button>
             <button class="btn-secondary" onclick="shareEmail()" aria-label="Share via Email">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
                 Email
             </button>
             <button class="btn-danger" onclick="clearFields()" aria-label="Clear Form">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
                 Clear
             </button>
         </div>
@@ -483,37 +408,31 @@
     <!-- App Shell -->
     <div class="app-shell">
         <div class="bill-container" id="bill-container">
+
             <!-- Header -->
             <header class="bill-header">
-                <div class="header-left">
-                    <svg class="tooth-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M12,22C12,22 17,20.5 19,16.5C21,12.5 19,7 19,7C19,7 18.5,3.5 15,3C11.5,2.5 12,6 12,6C12,6 12.5,2.5 9,3C5.5,3.5 5,7 5,7C5,7 3,12.5 5,16.5C7,20.5 12,22 12,22Z" />
-                    </svg>
-                </div>
-                <div class="header-center">
-                    <h1 class="clinic-name">Dr. Mohana's Dental Care</h1>
-                    <div class="doctor-name">Dr. D. Mohanalakshmi M.D.S</div>
-                    <div class="doctor-title">Prosthodontist and Implantologist</div>
-                    <div class="contact-info">Ph: +91 9003227250</div>
-                    <div class="consulting-hours">
-                        Morning: 10.00 am to 1.00 pm<br>
-                        Evening: 5.30 pm to 8.30 pm<br>
-                        (Sunday holiday)
+                <h1 class="clinic-name">Dr. Mohana's Dental Care</h1>
+                <div class="header-details">
+                    <div class="header-left">
+                        <img src="logo.jpeg" alt="Dr. Mohana's Dental Care Logo" class="clinic-logo">
+                        <div class="doctor-info">
+                            <div class="doctor-name">Dr. D. Mohanalakshmi M.D.S</div>
+                            <div class="doctor-title">Prosthodontist and Implantologist</div>
+                        </div>
                     </div>
-                    <div class="appointment-label">For Appointment</div>
-                </div>
-                <div class="header-right">
-                    <!-- Clean inline SVG placeholder for dental aesthetic -->
-                    <svg class="decorative-image" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                        <rect width="100" height="100" fill="#f0f9fa"/>
-                        <circle cx="50" cy="40" r="15" fill="#01696f" opacity="0.1"/>
-                        <path d="M35 60 Q50 75 65 60" stroke="#01696f" stroke-width="4" fill="none" stroke-linecap="round"/>
-                        <path d="M35 60 Q50 80 65 60" fill="white" opacity="0.8"/>
-                    </svg>
+                    <div class="header-right">
+                        <div class="contact-info">Ph: +91 9003227250</div>
+                        <div class="consulting-hours">
+                            Morning: 10.00 am to 1.00 pm<br>
+                            Evening: 5.30 pm to 8.30 pm<br>
+                            (Sunday holiday)
+                        </div>
+                        <div class="appointment-label">For Appointment</div>
+                    </div>
                 </div>
             </header>
 
-            <hr>
+            <hr class="bill-divider">
 
             <div class="services-strip">
                 Dental Implants &bull; Orthodontics Braces &bull; Invisible Aligners &bull; Root Canal Treatment &bull; Child Dentistry &bull; Crown and Bridge &bull; Complete Dentures &bull; Cosmetic Dentistry
@@ -523,8 +442,9 @@
                 No. 41/5, Karpagam Gardens, 1st Main Road, Adyar, Chennai - 600 020.
             </div>
 
-            <form id="bill-form" onsubmit="event.preventDefault();">
-                <!-- Bill Meta -->
+            <!-- Bill Form -->
+            <form id="bill-form" class="bill-form" onsubmit="event.preventDefault();">
+
                 <div class="bill-meta">
                     <div>
                         <label for="billNo">BILL NO:-</label>
@@ -536,23 +456,21 @@
                     </div>
                 </div>
 
-                <!-- Patient Info -->
                 <div class="patient-info">
                     This is to certify that Mr/Mrs/Miss/Master,
-                    <label for="patientName" class="sr-only" style="display:none;">Patient Name</label>
+                    <label for="patientName" style="display:none;">Patient Name</label>
                     <input type="text" id="patientName" class="input-inline patient-name-input" placeholder="Patient Name">
                     aged
-                    <label for="patientAge" class="sr-only" style="display:none;">Age</label>
+                    <label for="patientAge" style="display:none;">Age</label>
                     <input type="number" id="patientAge" class="input-inline age-input" placeholder="00" min="0" max="150">
                     yrs
                 </div>
 
-                <!-- Procedures -->
                 <div class="procedures-section">
                     <div class="procedure-row">
                         <div class="procedure-left">
                             <span>1.</span>
-                            <label for="proc1Name" class="sr-only" style="display:none;">Procedure 1</label>
+                            <label for="proc1Name" style="display:none;">Procedure 1</label>
                             <input type="text" id="proc1Name" class="input-inline procedure-name-input" placeholder="Procedure description">
                         </div>
                         <div class="procedure-right">
@@ -563,7 +481,7 @@
                     <div class="procedure-row">
                         <div class="procedure-left">
                             <span>2.</span>
-                            <label for="proc2Name" class="sr-only" style="display:none;">Procedure 2</label>
+                            <label for="proc2Name" style="display:none;">Procedure 2</label>
                             <input type="text" id="proc2Name" class="input-inline procedure-name-input" placeholder="Procedure description">
                         </div>
                         <div class="procedure-right">
@@ -574,7 +492,7 @@
                     <div class="procedure-row">
                         <div class="procedure-left">
                             <span>3.</span>
-                            <label for="proc3Name" class="sr-only" style="display:none;">Procedure 3</label>
+                            <label for="proc3Name" style="display:none;">Procedure 3</label>
                             <input type="text" id="proc3Name" class="input-inline procedure-name-input" placeholder="Procedure description">
                         </div>
                         <div class="procedure-right">
@@ -585,7 +503,7 @@
                     <div class="procedure-row">
                         <div class="procedure-left">
                             <span>4.</span>
-                            <label for="proc4Name" class="sr-only" style="display:none;">Procedure 4</label>
+                            <label for="proc4Name" style="display:none;">Procedure 4</label>
                             <input type="text" id="proc4Name" class="input-inline procedure-name-input" placeholder="Procedure description">
                         </div>
                         <div class="procedure-right">
@@ -595,15 +513,16 @@
                     </div>
                 </div>
 
-                <!-- Amount -->
                 <div class="amount-section">
                     I have received Rs.
-                    <label for="amount" class="sr-only" style="display:none;">Amount</label>
+                    <label for="amount" style="display:none;">Amount</label>
                     <input type="number" id="amount" class="input-inline amount-input" placeholder="0.00" min="0" step="0.01">
                     for the above mentioned treatment as professional charges.
                 </div>
 
-                <!-- Signatures -->
+                <!-- Spacer pushes signatures to bottom -->
+                <div class="bill-spacer"></div>
+
                 <div class="signatures-section">
                     <div class="signature-box">
                         <div class="signature-line"></div>
@@ -615,94 +534,130 @@
                     </div>
                 </div>
             </form>
+
         </div>
     </div>
 
     <script>
-        // Set today's date as default for the main bill date
-        document.addEventListener('DOMContentLoaded', () => {
-            const today = new Date().toISOString().split('T')[0];
+        // Set today's date on load
+        document.addEventListener('DOMContentLoaded', function() {
+            var today = new Date().toISOString().split('T')[0];
             document.getElementById('billDate').value = today;
         });
 
-        // Helper to format bill details for sharing
+        // Build plain-text summary for email
         function getBillSummary() {
-            const billNo = document.getElementById('billNo').value || 'N/A';
-            const date = document.getElementById('billDate').value || 'N/A';
-            const name = document.getElementById('patientName').value || 'Patient';
-            const amount = document.getElementById('amount').value || '0';
-            
-            let procedures = [];
-            for (let i = 1; i <= 4; i++) {
-                const procName = document.getElementById(`proc${i}Name`).value;
+            var billNo = document.getElementById('billNo').value || 'N/A';
+            var date = document.getElementById('billDate').value || 'N/A';
+            var name = document.getElementById('patientName').value || 'Patient';
+            var age = document.getElementById('patientAge').value || '';
+            var amount = document.getElementById('amount').value || '0';
+
+            var lines = [];
+            lines.push("Dr. Mohana's Dental Care");
+            lines.push("Bill No: " + billNo);
+            lines.push("Date: " + date);
+            lines.push("Patient: " + name + (age ? " (Age: " + age + ")" : ""));
+            lines.push("");
+            lines.push("Procedures:");
+            for (var i = 1; i <= 4; i++) {
+                var procName = document.getElementById('proc' + i + 'Name').value;
+                var procDate = document.getElementById('proc' + i + 'Date').value;
                 if (procName) {
-                    procedures.push(`- ${procName}`);
+                    lines.push(i + ". " + procName + (procDate ? " (on " + procDate + ")" : ""));
                 }
             }
-            
-            const proceduresText = procedures.length > 0 ? `\nProcedures:\n${procedures.join('\n')}` : '';
-
-            return `Dr. Mohana's Dental Care\n\nBill No: ${billNo}\nDate: ${date}\nPatient: ${name}${proceduresText}\n\nAmount Received: Rs. ${amount}\n\nThank you for choosing Dr. Mohana's Dental Care!`;
+            lines.push("");
+            lines.push("Amount Received: Rs. " + amount);
+            lines.push("");
+            lines.push("Thank you for choosing Dr. Mohana's Dental Care!");
+            return lines.join("\n");
         }
 
-        // 1. Download PDF using html2pdf
-        function downloadPDF() {
-            const element = document.getElementById('bill-container');
-            const billNo = document.getElementById('billNo').value || 'New';
-            const date = document.getElementById('billDate').value || 'Date';
-            
-            // To ensure inputs look like text in PDF, we can temporarily adjust their styles
-            // Note: html2pdf captures inputs as they appear in the DOM.
-            const opt = {
-                margin:       [15, 20],
-                filename:     `DrMohana_Bill_${billNo}_${date}.pdf`,
-                image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, useCORS: true },
-                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            };
+        // Print - uses browser print which respects @media print CSS
+        function handlePrint() {
+            window.print();
+        }
 
-            // Remove borders for PDF generation
-            const inputs = element.querySelectorAll('input');
-            const originalStyles = [];
-            inputs.forEach(input => {
-                originalStyles.push(input.style.borderBottomColor);
-                if (input.value) {
-                    input.style.borderBottomColor = 'transparent';
-                    input.style.background = 'transparent';
-                }
+        // PDF Download — works directly on the original element so input values are captured
+        function downloadPDF() {
+            var bill = document.getElementById('bill-container');
+            var billNo = document.getElementById('billNo').value || 'New';
+            var date = document.getElementById('billDate').value || 'Date';
+
+            // Save original styles
+            var origWidth = bill.style.width;
+            var origMinHeight = bill.style.minHeight;
+            var origBoxShadow = bill.style.boxShadow;
+            var origBorderRadius = bill.style.borderRadius;
+
+            // Temporarily resize to fixed pixel width for consistent capture
+            bill.style.width = '760px';
+            bill.style.minHeight = '1060px';
+            bill.style.boxShadow = 'none';
+            bill.style.borderRadius = '0';
+
+            // Hide input borders for clean look
+            var inputs = bill.querySelectorAll('input');
+            var savedInputStyles = [];
+            inputs.forEach(function(inp) {
+                savedInputStyles.push({
+                    borderBottom: inp.style.borderBottom,
+                    background: inp.style.background
+                });
+                inp.style.borderBottom = '1px solid transparent';
+                inp.style.background = 'transparent';
             });
 
-            html2pdf().set(opt).from(element).save().then(() => {
-                // Restore borders
-                inputs.forEach((input, index) => {
-                    input.style.borderBottomColor = originalStyles[index];
-                    input.style.background = '';
+            var opt = {
+                margin: [10, 5, 10, 5],
+                filename: 'DrMohana_Bill_' + billNo + '_' + date + '.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: {
+                    scale: 2,
+                    useCORS: true,
+                    scrollX: 0,
+                    scrollY: 0,
+                    windowWidth: 760
+                },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            html2pdf().set(opt).from(bill).save().then(function() {
+                // Restore original styles
+                bill.style.width = origWidth;
+                bill.style.minHeight = origMinHeight;
+                bill.style.boxShadow = origBoxShadow;
+                bill.style.borderRadius = origBorderRadius;
+                inputs.forEach(function(inp, idx) {
+                    inp.style.borderBottom = savedInputStyles[idx].borderBottom;
+                    inp.style.background = savedInputStyles[idx].background;
+                });
+            }).catch(function() {
+                bill.style.width = origWidth;
+                bill.style.minHeight = origMinHeight;
+                bill.style.boxShadow = origBoxShadow;
+                bill.style.borderRadius = origBorderRadius;
+                inputs.forEach(function(inp, idx) {
+                    inp.style.borderBottom = savedInputStyles[idx].borderBottom;
+                    inp.style.background = savedInputStyles[idx].background;
                 });
             });
         }
 
-        // 2. Share via WhatsApp
-        function shareWhatsApp() {
-            const summary = getBillSummary();
-            const encodedText = encodeURIComponent(summary);
-            window.open(`https://wa.me/?text=${encodedText}`, '_blank');
-        }
-
-        // 3. Share via Email
+        // Email
         function shareEmail() {
-            const name = document.getElementById('patientName').value || 'Patient';
-            const subject = `Dental Bill - ${name} - Dr. Mohana's Dental Care`;
-            const summary = getBillSummary();
-            
-            window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(summary)}`;
+            var name = document.getElementById('patientName').value || 'Patient';
+            var subject = 'Dental Bill - ' + name + " - Dr. Mohana's Dental Care";
+            var body = getBillSummary();
+            window.location.href = 'mailto:?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
         }
 
-        // 4. Clear Fields
+        // Clear
         function clearFields() {
-            if (confirm("Are you sure you want to clear all fields?")) {
+            if (confirm('Are you sure you want to clear all fields?')) {
                 document.getElementById('bill-form').reset();
-                // Re-set today's date
-                const today = new Date().toISOString().split('T')[0];
+                var today = new Date().toISOString().split('T')[0];
                 document.getElementById('billDate').value = today;
             }
         }
