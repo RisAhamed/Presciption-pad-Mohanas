@@ -55,7 +55,7 @@ function App() {
         const billNo = (document.getElementById('billNo') as HTMLInputElement)?.value || 'New';
         const date = (document.getElementById('billDate') as HTMLInputElement)?.value || 'Date';
 
-        // Wait for all images in the bill to load before capture
+        // Step 1: Wait for all images inside the bill to be fully loaded
         const images = Array.from(bill.querySelectorAll('img'));
         await Promise.all(
             images.map(
@@ -65,18 +65,21 @@ function App() {
                             resolve();
                         } else {
                             img.onload = () => resolve();
-                            img.onerror = () => resolve(); // resolve anyway so we don't hang
+                            img.onerror = () => resolve();
                         }
                     })
             )
         );
 
-        // Hide toolbar during PDF capture
+        // Step 2: Scroll to top before capture to eliminate vertical offset
+        window.scrollTo(0, 0);
+
+        // Step 3: Hide toolbar so it is not captured
         const toolbar = document.querySelector('.toolbar') as HTMLElement | null;
         const origToolbarDisplay = toolbar?.style.display || '';
         if (toolbar) toolbar.style.display = 'none';
 
-        // Save original inline styles
+        // Step 4: Save original bill styles
         const origStyles = {
             position: bill.style.position,
             left: bill.style.left,
@@ -92,21 +95,24 @@ function App() {
             overflow: bill.style.overflow,
         };
 
-        // Fix bill to top-left of viewport so html2canvas captures it fully
+        // Step 5: Position bill at exact top-left for capture
         bill.style.position = 'fixed';
         bill.style.left = '0';
         bill.style.top = '0';
         bill.style.margin = '0';
         bill.style.width = '794px';
-        bill.style.height = '1123px';
+        // CRITICAL: Do NOT set a fixed height — let content define height naturally
+        // Setting height: 1123px causes the spacer to expand and overflow into page 2
+        bill.style.height = 'auto';
         bill.style.minHeight = 'auto';
         bill.style.maxWidth = 'none';
         bill.style.boxShadow = 'none';
         bill.style.borderRadius = '0';
         bill.style.zIndex = '9999';
-        bill.style.overflow = 'hidden';
+        // CRITICAL: Do NOT set overflow: hidden — it clips signatures below the spacer
+        bill.style.overflow = 'visible';
 
-        // CRITICAL: Force flex layout inline on header elements so html2canvas sees them
+        // Step 6: Force inline flex on header elements so html2canvas respects them
         const headerDetails = bill.querySelector('.header-details') as HTMLElement | null;
         const headerLeft = bill.querySelector('.header-left') as HTMLElement | null;
         const origHeaderDetailsDisplay = headerDetails?.style.display || '';
@@ -114,18 +120,65 @@ function App() {
         const origHeaderDetailsJustify = headerDetails?.style.justifyContent || '';
         const origHeaderLeftDisplay = headerLeft?.style.display || '';
         const origHeaderLeftAlign = headerLeft?.style.alignItems || '';
-
         if (headerDetails) {
             headerDetails.style.display = 'flex';
             headerDetails.style.flexDirection = 'row';
             headerDetails.style.justifyContent = 'space-between';
+            headerDetails.style.alignItems = 'flex-start';
         }
         if (headerLeft) {
             headerLeft.style.display = 'flex';
+            headerLeft.style.flexDirection = 'row';
             headerLeft.style.alignItems = 'center';
+            headerLeft.style.gap = '12px';
         }
 
-        // Hide input borders for clean PDF
+        // Step 7: Force inline flex on signatures section so they stay side-by-side
+        const sigSection = bill.querySelector('.signatures-section') as HTMLElement | null;
+        const origSigDisplay = sigSection?.style.display || '';
+        const origSigJustify = sigSection?.style.justifyContent || '';
+        if (sigSection) {
+            sigSection.style.display = 'flex';
+            sigSection.style.flexDirection = 'row';
+            sigSection.style.justifyContent = 'space-between';
+            sigSection.style.alignItems = 'flex-start';
+        }
+
+        // Step 8: Force inline flex on bill-meta and procedure-rows
+        const billMeta = bill.querySelector('.bill-meta') as HTMLElement | null;
+        const origBillMetaDisplay = billMeta?.style.display || '';
+        if (billMeta) {
+            billMeta.style.display = 'flex';
+            billMeta.style.flexDirection = 'row';
+            billMeta.style.justifyContent = 'space-between';
+        }
+
+        const procedureRows = Array.from(bill.querySelectorAll('.procedure-row')) as HTMLElement[];
+        const origProcRowStyles = procedureRows.map((row) => ({
+            display: row.style.display,
+            flexDirection: row.style.flexDirection,
+            justifyContent: row.style.justifyContent,
+            alignItems: row.style.alignItems,
+        }));
+        procedureRows.forEach((row) => {
+            row.style.display = 'flex';
+            row.style.flexDirection = 'row';
+            row.style.justifyContent = 'space-between';
+            row.style.alignItems = 'center';
+        });
+
+        // Step 9: Collapse the bill-spacer to a fixed small height — do NOT let it flex-grow
+        const billSpacer = bill.querySelector('.bill-spacer') as HTMLElement | null;
+        const origSpacerFlex = billSpacer?.style.flex || '';
+        const origSpacerMinHeight = billSpacer?.style.minHeight || '';
+        const origSpacerHeight = billSpacer?.style.height || '';
+        if (billSpacer) {
+            billSpacer.style.flex = 'none';
+            billSpacer.style.minHeight = '0';
+            billSpacer.style.height = '80px'; // fixed reasonable gap between procedures and amount
+        }
+
+        // Step 10: Hide input borders for clean PDF output
         const inputs = bill.querySelectorAll('input');
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const savedInputStyles: any[] = [];
@@ -138,9 +191,12 @@ function App() {
             inp.style.background = 'transparent';
         });
 
-        // Give the browser one frame to apply all styles before capture
+        // Step 11: Wait two animation frames so all style changes are painted
         await new Promise((resolve) => requestAnimationFrame(resolve));
         await new Promise((resolve) => requestAnimationFrame(resolve));
+
+        // Step 12: Measure actual rendered height after all overrides
+        const actualHeight = bill.scrollHeight;
 
         const opt = {
             margin: 0,
@@ -153,11 +209,11 @@ function App() {
                 scrollX: 0,
                 scrollY: 0,
                 windowWidth: 794,
-                windowHeight: 1123,
+                windowHeight: actualHeight,
                 x: 0,
                 y: 0,
                 width: 794,
-                height: 1123,
+                height: actualHeight,
                 logging: false,
             },
             jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
@@ -165,6 +221,7 @@ function App() {
         };
 
         const restoreStyles = () => {
+            // Restore bill container
             bill.style.position = origStyles.position;
             bill.style.left = origStyles.left;
             bill.style.top = origStyles.top;
@@ -178,20 +235,57 @@ function App() {
             bill.style.zIndex = origStyles.zIndex;
             bill.style.overflow = origStyles.overflow;
 
+            // Restore header
             if (headerDetails) {
                 headerDetails.style.display = origHeaderDetailsDisplay;
                 headerDetails.style.flexDirection = origHeaderDetailsFlexDir;
                 headerDetails.style.justifyContent = origHeaderDetailsJustify;
+                headerDetails.style.alignItems = '';
             }
             if (headerLeft) {
                 headerLeft.style.display = origHeaderLeftDisplay;
                 headerLeft.style.alignItems = origHeaderLeftAlign;
+                headerLeft.style.flexDirection = '';
+                headerLeft.style.gap = '';
             }
+
+            // Restore signatures
+            if (sigSection) {
+                sigSection.style.display = origSigDisplay;
+                sigSection.style.justifyContent = origSigJustify;
+                sigSection.style.flexDirection = '';
+                sigSection.style.alignItems = '';
+            }
+
+            // Restore bill-meta
+            if (billMeta) {
+                billMeta.style.display = origBillMetaDisplay;
+                billMeta.style.flexDirection = '';
+                billMeta.style.justifyContent = '';
+            }
+
+            // Restore procedure rows
+            procedureRows.forEach((row, idx) => {
+                row.style.display = origProcRowStyles[idx].display;
+                row.style.flexDirection = origProcRowStyles[idx].flexDirection;
+                row.style.justifyContent = origProcRowStyles[idx].justifyContent;
+                row.style.alignItems = origProcRowStyles[idx].alignItems;
+            });
+
+            // Restore spacer
+            if (billSpacer) {
+                billSpacer.style.flex = origSpacerFlex;
+                billSpacer.style.minHeight = origSpacerMinHeight;
+                billSpacer.style.height = origSpacerHeight;
+            }
+
+            // Restore inputs
             inputs.forEach((inp, idx) => {
                 inp.style.borderBottom = savedInputStyles[idx].borderBottom;
                 inp.style.background = savedInputStyles[idx].background;
             });
 
+            // Restore toolbar
             if (toolbar) toolbar.style.display = origToolbarDisplay;
         };
 

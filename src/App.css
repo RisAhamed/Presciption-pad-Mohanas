@@ -393,3 +393,15 @@ button {
     .toolbar { flex-direction: column; align-items: stretch; }
     .action-buttons { justify-content: center; }
 }
+
+/* ==================== PDF CAPTURE STATE ==================== */
+/* Applied via inline styles during pdf capture — these ensure
+   the bill-form fills height correctly when spacer is collapsed */
+.bill-container[style*="position: fixed"] .bill-form {
+    flex: none;
+    height: auto;
+}
+.bill-container[style*="position: fixed"] .bill-spacer {
+    flex: none !important;
+    min-height: 0 !important;
+}
