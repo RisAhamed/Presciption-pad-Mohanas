@@ -246,15 +246,16 @@ button {
 @media print {
     @page {
         size: A4 portrait;
-        margin: 15mm 18mm;
+        margin: 10mm 15mm;
     }
 
     html, body {
-        width: 100%;
-        height: auto;
+        width: 210mm;
+        height: 297mm;
         background: white;
         -webkit-print-color-adjust: exact;
         print-color-adjust: exact;
+        overflow: hidden;
     }
 
     .toolbar {
@@ -262,64 +263,72 @@ button {
     }
 
     .app-shell {
-        padding: 0;
-        display: block;
+        padding: 0 !important;
+        display: block !important;
+        background: white !important;
     }
 
     .bill-container {
-        width: 100% !important;
-        max-width: none;
-        height: 100vh;
-        box-shadow: none;
-        border-radius: 0;
-        padding: 0;
-        margin: 0;
-        page-break-inside: avoid;
+        width: 180mm !important;       /* 210mm - 2×15mm margin */
+        height: 277mm !important;      /* 297mm - 2×10mm margin */
+        max-width: none !important;
+        min-height: unset !important;
+        box-shadow: none !important;
+        border-radius: 0 !important;
+        padding: 8mm 10mm !important;
+        margin: 0 !important;
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+        overflow: hidden !important;
         display: flex !important;
         flex-direction: column !important;
+    }
+
+    /* CRITICAL: Do NOT apply font-size to all children — it causes overflow */
+    /* Remove or do NOT include: .bill-container * { font-size: 105%; } */
+
+    .clinic-name {
+        font-size: 1.6rem !important;
     }
 
     .bill-form {
         display: flex !important;
         flex-direction: column !important;
         flex: 1 !important;
+        overflow: hidden !important;
     }
 
+    /* Collapse the spacer completely in print so nothing pushes out of bounds */
     .bill-spacer {
         flex: 1 !important;
-        min-height: 20px !important;
+        min-height: 0 !important;
+        max-height: 40mm !important;
     }
 
-    .bill-container * {
-        font-size: 105%;
-    }
-
-    .clinic-name {
-        font-size: 2rem !important;
-    }
-
-    /* Keep header-details as flex row in print */
     .header-details {
         display: flex !important;
         flex-direction: row !important;
         justify-content: space-between !important;
     }
+
     .header-left {
         display: flex !important;
         flex-direction: row !important;
         align-items: center !important;
     }
+
     .header-right {
         text-align: right !important;
     }
 
-    /* Keep procedure rows as flex row */
     .procedure-row {
         display: flex !important;
         flex-direction: row !important;
         justify-content: space-between !important;
         align-items: center !important;
         white-space: nowrap !important;
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
     }
 
     .bill-meta {
@@ -332,6 +341,7 @@ button {
         display: flex !important;
         flex-direction: row !important;
         justify-content: space-between !important;
+        margin-top: auto !important;
     }
 
     .input-inline {
@@ -340,6 +350,25 @@ button {
         background: transparent !important;
         -webkit-appearance: none;
         appearance: none;
+    }
+
+    /* Reduce service strip font so it wraps within the width */
+    .services-strip {
+        font-size: 0.65rem !important;
+        line-height: 1.4 !important;
+    }
+
+    .consulting-hours {
+        font-size: 0.72rem !important;
+    }
+
+    .address-line {
+        font-size: 0.75rem !important;
+        margin-bottom: 10px !important;
+    }
+
+    .bill-divider {
+        margin: 8px 0 !important;
     }
 }
 

@@ -48,75 +48,163 @@ function App() {
         window.print();
     };
 
-    const downloadPDF = () => {
+    const downloadPDF = async () => {
         const bill = billRef.current;
         if (!bill) return;
 
         const billNo = (document.getElementById('billNo') as HTMLInputElement)?.value || 'New';
         const date = (document.getElementById('billDate') as HTMLInputElement)?.value || 'Date';
 
-        // Save original styles
-        const origWidth = bill.style.width;
-        const origMinHeight = bill.style.minHeight;
-        const origBoxShadow = bill.style.boxShadow;
-        const origBorderRadius = bill.style.borderRadius;
+        // Wait for all images in the bill to load before capture
+        const images = Array.from(bill.querySelectorAll('img'));
+        await Promise.all(
+            images.map(
+                (img) =>
+                    new Promise<void>((resolve) => {
+                        if (img.complete && img.naturalWidth > 0) {
+                            resolve();
+                        } else {
+                            img.onload = () => resolve();
+                            img.onerror = () => resolve(); // resolve anyway so we don't hang
+                        }
+                    })
+            )
+        );
 
-        // Temporarily resize to fixed pixel width for consistent capture
-        bill.style.width = '760px';
-        bill.style.minHeight = '1060px';
+        // Hide toolbar during PDF capture
+        const toolbar = document.querySelector('.toolbar') as HTMLElement | null;
+        const origToolbarDisplay = toolbar?.style.display || '';
+        if (toolbar) toolbar.style.display = 'none';
+
+        // Save original inline styles
+        const origStyles = {
+            position: bill.style.position,
+            left: bill.style.left,
+            top: bill.style.top,
+            margin: bill.style.margin,
+            width: bill.style.width,
+            height: bill.style.height,
+            minHeight: bill.style.minHeight,
+            maxWidth: bill.style.maxWidth,
+            boxShadow: bill.style.boxShadow,
+            borderRadius: bill.style.borderRadius,
+            zIndex: bill.style.zIndex,
+            overflow: bill.style.overflow,
+        };
+
+        // Fix bill to top-left of viewport so html2canvas captures it fully
+        bill.style.position = 'fixed';
+        bill.style.left = '0';
+        bill.style.top = '0';
+        bill.style.margin = '0';
+        bill.style.width = '794px';
+        bill.style.height = '1123px';
+        bill.style.minHeight = 'auto';
+        bill.style.maxWidth = 'none';
         bill.style.boxShadow = 'none';
         bill.style.borderRadius = '0';
+        bill.style.zIndex = '9999';
+        bill.style.overflow = 'hidden';
 
-        // Hide input borders for clean look
+        // CRITICAL: Force flex layout inline on header elements so html2canvas sees them
+        const headerDetails = bill.querySelector('.header-details') as HTMLElement | null;
+        const headerLeft = bill.querySelector('.header-left') as HTMLElement | null;
+        const origHeaderDetailsDisplay = headerDetails?.style.display || '';
+        const origHeaderDetailsFlexDir = headerDetails?.style.flexDirection || '';
+        const origHeaderDetailsJustify = headerDetails?.style.justifyContent || '';
+        const origHeaderLeftDisplay = headerLeft?.style.display || '';
+        const origHeaderLeftAlign = headerLeft?.style.alignItems || '';
+
+        if (headerDetails) {
+            headerDetails.style.display = 'flex';
+            headerDetails.style.flexDirection = 'row';
+            headerDetails.style.justifyContent = 'space-between';
+        }
+        if (headerLeft) {
+            headerLeft.style.display = 'flex';
+            headerLeft.style.alignItems = 'center';
+        }
+
+        // Hide input borders for clean PDF
         const inputs = bill.querySelectorAll('input');
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const savedInputStyles: any[] = [];
-        inputs.forEach(function(inp) {
+        inputs.forEach((inp) => {
             savedInputStyles.push({
                 borderBottom: inp.style.borderBottom,
-                background: inp.style.background
+                background: inp.style.background,
             });
             inp.style.borderBottom = '1px solid transparent';
             inp.style.background = 'transparent';
         });
 
+        // Give the browser one frame to apply all styles before capture
+        await new Promise((resolve) => requestAnimationFrame(resolve));
+        await new Promise((resolve) => requestAnimationFrame(resolve));
+
         const opt = {
-            margin: [10, 5, 10, 5],
-            filename: 'DrMohana_Bill_' + billNo + '_' + date + '.pdf',
+            margin: 0,
+            filename: `DrMohana_Bill_${billNo}_${date}.pdf`,
             image: { type: 'jpeg', quality: 0.98 },
             html2canvas: {
                 scale: 2,
                 useCORS: true,
+                allowTaint: true,
                 scrollX: 0,
                 scrollY: 0,
-                windowWidth: 760
+                windowWidth: 794,
+                windowHeight: 1123,
+                x: 0,
+                y: 0,
+                width: 794,
+                height: 1123,
+                logging: false,
             },
-            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+            pagebreak: { mode: 'avoid-all' },
+        };
+
+        const restoreStyles = () => {
+            bill.style.position = origStyles.position;
+            bill.style.left = origStyles.left;
+            bill.style.top = origStyles.top;
+            bill.style.margin = origStyles.margin;
+            bill.style.width = origStyles.width;
+            bill.style.height = origStyles.height;
+            bill.style.minHeight = origStyles.minHeight;
+            bill.style.maxWidth = origStyles.maxWidth;
+            bill.style.boxShadow = origStyles.boxShadow;
+            bill.style.borderRadius = origStyles.borderRadius;
+            bill.style.zIndex = origStyles.zIndex;
+            bill.style.overflow = origStyles.overflow;
+
+            if (headerDetails) {
+                headerDetails.style.display = origHeaderDetailsDisplay;
+                headerDetails.style.flexDirection = origHeaderDetailsFlexDir;
+                headerDetails.style.justifyContent = origHeaderDetailsJustify;
+            }
+            if (headerLeft) {
+                headerLeft.style.display = origHeaderLeftDisplay;
+                headerLeft.style.alignItems = origHeaderLeftAlign;
+            }
+            inputs.forEach((inp, idx) => {
+                inp.style.borderBottom = savedInputStyles[idx].borderBottom;
+                inp.style.background = savedInputStyles[idx].background;
+            });
+
+            if (toolbar) toolbar.style.display = origToolbarDisplay;
         };
 
         if (typeof html2pdf !== 'undefined') {
-            html2pdf().set(opt).from(bill).save().then(function() {
-                // Restore original styles
-                bill.style.width = origWidth;
-                bill.style.minHeight = origMinHeight;
-                bill.style.boxShadow = origBoxShadow;
-                bill.style.borderRadius = origBorderRadius;
-                inputs.forEach(function(inp, idx) {
-                    inp.style.borderBottom = savedInputStyles[idx].borderBottom;
-                    inp.style.background = savedInputStyles[idx].background;
-                });
-            }).catch(function() {
-                bill.style.width = origWidth;
-                bill.style.minHeight = origMinHeight;
-                bill.style.boxShadow = origBoxShadow;
-                bill.style.borderRadius = origBorderRadius;
-                inputs.forEach(function(inp, idx) {
-                    inp.style.borderBottom = savedInputStyles[idx].borderBottom;
-                    inp.style.background = savedInputStyles[idx].background;
-                });
-            });
+            html2pdf()
+                .set(opt)
+                .from(bill)
+                .save()
+                .then(restoreStyles)
+                .catch(restoreStyles);
         } else {
-            console.error("html2pdf is not loaded");
+            restoreStyles();
+            console.error('html2pdf is not loaded');
         }
     };
 
@@ -175,7 +263,12 @@ function App() {
                         <h1 className="clinic-name">Dr. Mohana's Dental Care</h1>
                         <div className="header-details">
                             <div className="header-left">
-                                <img src="/logo.jpeg" alt="Dr. Mohana's Dental Care Logo" className="clinic-logo" />
+                                <img
+                                    src={`${window.location.origin}/logo.jpeg`}
+                                    alt="Dr. Mohana's Dental Care Logo"
+                                    className="clinic-logo"
+                                    crossOrigin="anonymous"
+                                />
                                 <div className="doctor-info">
                                     <div className="doctor-name">Dr. D. Mohanalakshmi M.D.S</div>
                                     <div className="doctor-title">Prosthodontist and Implantologist</div>
