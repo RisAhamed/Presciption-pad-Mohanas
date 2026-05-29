@@ -1,184 +1,366 @@
-.counter {
-  font-size: 16px;
-  padding: 5px 10px;
-  border-radius: 5px;
-  color: var(--accent);
-  background: var(--accent-bg);
-  border: 2px solid transparent;
-  transition: border-color 0.3s;
-  margin-bottom: 24px;
-
-  &:hover {
-    border-color: var(--accent-border);
-  }
-  &:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 2px;
-  }
+:root {
+    --primary: #01696f;
+    --primary-light: #018a91;
+    --accent: #f0f9fa;
+    --text-main: #1a1a1a;
+    --text-muted: #4a5568;
+    --border-color: rgba(0,0,0,0.15);
+    --bg-shell: #f4f7f8;
+    --bg-bill: #ffffff;
+    --danger: #c0392b;
 }
 
-.hero {
-  position: relative;
+* { box-sizing: border-box; margin: 0; padding: 0; }
 
-  .base,
-  .framework,
-  .vite {
-    inset-inline: 0;
-    margin: 0 auto;
-  }
-
-  .base {
-    width: 170px;
-    position: relative;
-    z-index: 0;
-  }
-
-  .framework,
-  .vite {
-    position: absolute;
-  }
-
-  .framework {
-    z-index: 1;
-    top: 34px;
-    height: 28px;
-    transform: perspective(2000px) rotateZ(300deg) rotateX(44deg) rotateY(39deg)
-      scale(1.4);
-  }
-
-  .vite {
-    z-index: 0;
-    top: 107px;
-    height: 26px;
-    width: auto;
-    transform: perspective(2000px) rotateZ(300deg) rotateX(40deg) rotateY(39deg)
-      scale(0.8);
-  }
+body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background-color: var(--bg-shell);
+    color: var(--text-main);
+    line-height: 1.5;
 }
 
-#center {
-  display: flex;
-  flex-direction: column;
-  gap: 25px;
-  place-content: center;
-  place-items: center;
-  flex-grow: 1;
-
-  @media (max-width: 1024px) {
-    padding: 32px 20px 24px;
-    gap: 18px;
-  }
-}
-
-#next-steps {
-  display: flex;
-  border-top: 1px solid var(--border);
-  text-align: left;
-
-  & > div {
-    flex: 1 1 0;
-    padding: 32px;
-    @media (max-width: 1024px) {
-      padding: 24px 20px;
-    }
-  }
-
-  .icon {
-    margin-bottom: 16px;
-    width: 22px;
-    height: 22px;
-  }
-
-  @media (max-width: 1024px) {
-    flex-direction: column;
-    text-align: center;
-  }
-}
-
-#docs {
-  border-right: 1px solid var(--border);
-
-  @media (max-width: 1024px) {
-    border-right: none;
-    border-bottom: 1px solid var(--border);
-  }
-}
-
-#next-steps ul {
-  list-style: none;
-  padding: 0;
-  display: flex;
-  gap: 8px;
-  margin: 32px 0 0;
-
-  .logo {
-    height: 18px;
-  }
-
-  a {
-    color: var(--text-h);
-    font-size: 16px;
-    border-radius: 6px;
-    background: var(--social-bg);
+/* ==================== TOOLBAR ==================== */
+.toolbar {
+    position: sticky;
+    top: 0;
+    background: white;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    padding: 12px 24px;
     display: flex;
-    padding: 6px 12px;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 100;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+.toolbar-brand {
+    display: flex;
     align-items: center;
     gap: 8px;
-    text-decoration: none;
-    transition: box-shadow 0.3s;
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    font-size: 1.15rem;
+    color: var(--primary);
+}
+.toolbar-brand svg { width: 22px; height: 22px; fill: var(--primary); }
+.action-buttons { display: flex; gap: 10px; flex-wrap: wrap; }
 
-    &:hover {
-      box-shadow: var(--shadow);
-    }
-    .button-icon {
-      height: 18px;
-      width: 18px;
-    }
-  }
+button {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+    font-size: 0.85rem;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+}
+.btn-primary { background: var(--primary); color: white; }
+.btn-primary:hover { background: var(--primary-light); }
+.btn-secondary { background: white; color: var(--primary); border: 1px solid var(--primary); }
+.btn-secondary:hover { background: var(--accent); }
+.btn-danger { background: white; color: var(--danger); border: 1px solid var(--danger); }
+.btn-danger:hover { background: #fdf2f2; }
 
-  @media (max-width: 1024px) {
-    margin-top: 20px;
-    flex-wrap: wrap;
+/* ==================== APP SHELL ==================== */
+.app-shell {
+    padding: 30px 16px;
+    display: flex;
     justify-content: center;
-
-    li {
-      flex: 1 1 calc(50% - 8px);
-    }
-
-    a {
-      width: 100%;
-      justify-content: center;
-      box-sizing: border-box;
-    }
-  }
 }
 
-#spacer {
-  height: 88px;
-  border-top: 1px solid var(--border);
-  @media (max-width: 1024px) {
-    height: 48px;
-  }
+/* ==================== BILL ==================== */
+.bill-container {
+    background: var(--bg-bill);
+    width: 760px;
+    min-height: 1060px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    border-radius: 4px;
+    padding: 36px 44px;
+    display: flex;
+    flex-direction: column;
 }
 
-.ticks {
-  position: relative;
-  width: 100%;
+/* Header */
+.bill-header { text-align: center; margin-bottom: 12px; }
+.clinic-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--primary);
+    margin-bottom: 10px;
+    line-height: 1.15;
+}
+.header-details {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.clinic-logo {
+    width: 70px;
+    height: 70px;
+    object-fit: contain;
+}
+.doctor-info { text-align: left; }
+.doctor-name { font-weight: 700; font-size: 1.05rem; margin-bottom: 1px; }
+.doctor-title { font-size: 0.85rem; color: var(--text-muted); }
 
-  &::before,
-  &::after {
-    content: '';
-    position: absolute;
-    top: -4.5px;
-    border: 5px solid transparent;
-  }
+.header-right { text-align: right; }
+.contact-info { font-size: 0.9rem; font-weight: 600; margin-bottom: 2px; }
+.consulting-hours { font-size: 0.78rem; color: var(--text-muted); line-height: 1.35; }
+.appointment-label {
+    display: inline-block;
+    background: var(--primary);
+    color: white;
+    padding: 2px 10px;
+    border-radius: 10px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    margin-top: 4px;
+}
 
-  &::before {
-    left: 0;
-    border-left-color: var(--border);
-  }
-  &::after {
-    right: 0;
-    border-right-color: var(--border);
-  }
+.bill-divider {
+    border: none;
+    border-top: 2px solid var(--primary);
+    margin: 12px 0;
+    opacity: 0.5;
+}
+
+.services-strip {
+    text-align: center;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--primary);
+    margin-bottom: 6px;
+    line-height: 1.5;
+}
+.address-line {
+    text-align: center;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-bottom: 20px;
+}
+
+/* Form area */
+.bill-form { display: flex; flex-direction: column; flex: 1; }
+
+.bill-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.input-inline {
+    border: none;
+    border-bottom: 1px dashed var(--border-color);
+    background: transparent;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.95rem;
+    color: var(--text-main);
+    padding: 2px 4px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+.input-inline:focus {
+    border-bottom-color: var(--primary);
+    background: var(--accent);
+}
+.input-inline::placeholder { color: #cbd5e0; font-weight: 400; }
+
+.bill-no-input { width: 100px; }
+.date-input { width: 140px; font-family: 'Inter', sans-serif; }
+
+.patient-info {
+    line-height: 2;
+    margin-bottom: 20px;
+    font-size: 0.95rem;
+}
+.patient-name-input { width: 300px; font-weight: 500; }
+.age-input { width: 50px; text-align: center; }
+
+.procedures-section { margin-bottom: 20px; }
+.procedure-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    white-space: nowrap;
+}
+.procedure-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+    min-width: 0;
+}
+.procedure-left span { flex-shrink: 0; font-weight: 500; }
+.procedure-name-input { flex: 1; min-width: 0; }
+.procedure-right {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+    margin-left: 12px;
+}
+.procedure-right label { font-weight: 500; flex-shrink: 0; }
+.procedure-date-input { width: 120px; }
+
+.amount-section {
+    line-height: 2;
+    font-size: 0.95rem;
+}
+.amount-input {
+    width: 120px;
+    font-weight: 600;
+    text-align: right;
+}
+
+/* Signatures pushed to bottom via flex spacer */
+.bill-spacer { flex: 1; min-height: 40px; }
+
+.signatures-section {
+    display: flex;
+    justify-content: space-between;
+    padding-top: 20px;
+}
+.signature-box { text-align: center; }
+.signature-line {
+    width: 180px;
+    border-top: 1px solid var(--text-main);
+    margin-bottom: 6px;
+}
+.signature-label { font-weight: 600; font-size: 0.9rem; }
+
+/* ==================== PRINT ==================== */
+@media print {
+    @page {
+        size: A4 portrait;
+        margin: 15mm 18mm;
+    }
+
+    html, body {
+        width: 100%;
+        height: auto;
+        background: white;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    .toolbar {
+        display: none !important;
+    }
+
+    .app-shell {
+        padding: 0;
+        display: block;
+    }
+
+    .bill-container {
+        width: 100% !important;
+        max-width: none;
+        height: 100vh;
+        box-shadow: none;
+        border-radius: 0;
+        padding: 0;
+        margin: 0;
+        page-break-inside: avoid;
+        display: flex !important;
+        flex-direction: column !important;
+    }
+
+    .bill-form {
+        display: flex !important;
+        flex-direction: column !important;
+        flex: 1 !important;
+    }
+
+    .bill-spacer {
+        flex: 1 !important;
+        min-height: 20px !important;
+    }
+
+    .bill-container * {
+        font-size: 105%;
+    }
+
+    .clinic-name {
+        font-size: 2rem !important;
+    }
+
+    /* Keep header-details as flex row in print */
+    .header-details {
+        display: flex !important;
+        flex-direction: row !important;
+        justify-content: space-between !important;
+    }
+    .header-left {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+    }
+    .header-right {
+        text-align: right !important;
+    }
+
+    /* Keep procedure rows as flex row */
+    .procedure-row {
+        display: flex !important;
+        flex-direction: row !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        white-space: nowrap !important;
+    }
+
+    .bill-meta {
+        display: flex !important;
+        flex-direction: row !important;
+        justify-content: space-between !important;
+    }
+
+    .signatures-section {
+        display: flex !important;
+        flex-direction: row !important;
+        justify-content: space-between !important;
+    }
+
+    .input-inline {
+        border: none !important;
+        border-bottom: 1px solid transparent !important;
+        background: transparent !important;
+        -webkit-appearance: none;
+        appearance: none;
+    }
+}
+
+/* ==================== RESPONSIVE ==================== */
+@media screen and (max-width: 800px) {
+    .bill-container {
+        width: 100%;
+        padding: 20px 16px;
+        border-radius: 0;
+        min-height: auto;
+    }
+    .app-shell { padding: 10px 0; }
+    .clinic-name { font-size: 1.6rem; }
+    .header-details { flex-direction: column; align-items: center; gap: 12px; text-align: center; }
+    .header-left { flex-direction: column; text-align: center; }
+    .header-right { text-align: center; }
+    .doctor-info { text-align: center; }
+    .patient-name-input { width: 180px; }
+    .procedure-row { flex-wrap: wrap; white-space: normal; }
+    .procedure-right { margin-left: 20px; }
+    .signatures-section { flex-direction: column; gap: 30px; align-items: center; }
+    .toolbar { flex-direction: column; align-items: stretch; }
+    .action-buttons { justify-content: center; }
 }
