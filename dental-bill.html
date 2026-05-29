@@ -645,13 +645,7 @@
             });
         }
 
-        // Email
-        function shareEmail() {
-            var name = document.getElementById('patientName').value || 'Patient';
-            var subject = 'Dental Bill - ' + name + " - Dr. Mohana's Dental Care";
-            var body = getBillSummary();
-            window.location.href = 'mailto:?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
-        }
+        
 
         // Clear
         function clearFields() {
