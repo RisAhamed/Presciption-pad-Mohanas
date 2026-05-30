@@ -7,6 +7,27 @@ declare const html2pdf: any;
 function App() {
     const billRef = useRef<HTMLDivElement>(null);
 
+    const getBase64Image = (url: string): Promise<string> => {
+        return new Promise((resolve) => {
+            const img = new window.Image();
+            img.crossOrigin = 'anonymous';
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                canvas.width = img.naturalWidth;
+                canvas.height = img.naturalHeight;
+                const ctx = canvas.getContext('2d');
+                if (ctx) {
+                    ctx.drawImage(img, 0, 0);
+                    resolve(canvas.toDataURL('image/jpeg', 0.95));
+                } else {
+                    resolve(url); // fallback to original url
+                }
+            };
+            img.onerror = () => resolve(url); // fallback
+            img.src = url + '?t=' + Date.now(); // cache-bust
+        });
+    };
+
     useEffect(() => {
         // Set today's date on load
         const today = new Date().toISOString().split('T')[0];
@@ -77,6 +98,22 @@ function App() {
         // Declare tracking arrays for hiding empty rows inline (for html2canvas)
         const allProcRows: HTMLElement[] = [];
         const rowWasHidden: boolean[] = [];
+        let logoImg: HTMLImageElement | null = null;
+        let origLogoSrc = '';
+
+        // Step 0: Convert logo to base64 to avoid CORS issues in html2canvas
+        logoImg = bill.querySelector('.clinic-logo') as HTMLImageElement | null;
+        origLogoSrc = logoImg?.src || '';
+        if (logoImg) {
+            const base64src = await getBase64Image('/logo.jpeg');
+            logoImg.src = base64src;
+            // Wait for the new src to load
+            await new Promise<void>((resolve) => {
+                if (logoImg.complete) { resolve(); return; }
+                logoImg.onload = () => resolve();
+                logoImg.onerror = () => resolve();
+            });
+        }
 
         // Step 1: Wait for all images inside the bill to be fully loaded
         const images = Array.from(bill.querySelectorAll('img'));
@@ -267,7 +304,7 @@ function App() {
             html2canvas: {
                 scale: 3,
                 useCORS: true,
-                allowTaint: true,
+                allowTaint: false,
                 scrollX: 0,
                 scrollY: 0,
                 windowWidth: 794,
@@ -365,6 +402,11 @@ function App() {
                 const row = document.getElementById(`procedure-row-${i}`);
                 if (row) row.classList.remove('row-empty');
             }
+
+            // Restore logo src
+            if (logoImg) {
+                logoImg.src = origLogoSrc;
+            }
         };
 
         if (typeof html2pdf !== 'undefined') {
@@ -428,7 +470,7 @@ function App() {
                         <div className="header-details">
                             <div className="header-left">
                                 <img
-                                    src={`${window.location.origin}/logo.jpeg`}
+                                    src="/logo.jpeg"
                                     alt="Dr. Mohana's Dental Care Logo"
                                     className="clinic-logo"
                                     crossOrigin="anonymous"
