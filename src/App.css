@@ -302,7 +302,8 @@ button {
     .bill-spacer {
         flex: 1 !important;
         min-height: 0 !important;
-        max-height: 40mm !important;
+        /* Remove max-height entirely — let flex: 1 fill remaining space naturally
+           within the fixed 277mm bill height */
     }
 
     .header-details {
@@ -337,11 +338,18 @@ button {
         justify-content: space-between !important;
     }
 
+    .amount-section {
+        margin-top: 0 !important;
+        padding-top: 4mm !important;
+    }
+
     .signatures-section {
         display: flex !important;
         flex-direction: row !important;
         justify-content: space-between !important;
-        margin-top: auto !important;
+        margin-top: 6mm !important;
+        padding-top: 0 !important;
+        flex-shrink: 0 !important;
     }
 
     .input-inline {
