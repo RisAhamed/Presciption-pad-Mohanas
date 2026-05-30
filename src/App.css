@@ -282,13 +282,52 @@ button {
         overflow: hidden !important;
         display: flex !important;
         flex-direction: column !important;
+        font-size: 11pt !important;   /* Upgrade base from ~9pt to 11pt for comfortable reading */
     }
 
     /* CRITICAL: Do NOT apply font-size to all children — it causes overflow */
     /* Remove or do NOT include: .bill-container * { font-size: 105%; } */
 
     .clinic-name {
-        font-size: 1.6rem !important;
+        font-size: 22pt !important;   /* Was 1.6rem ≈ ~12pt, now visibly larger on A4 */
+    }
+
+    .doctor-name {
+        font-size: 11pt !important;
+    }
+
+    .doctor-title {
+        font-size: 9.5pt !important;
+    }
+
+    .contact-info {
+        font-size: 10pt !important;
+    }
+
+    .consulting-hours {
+        font-size: 8.5pt !important;
+    }
+
+    .appointment-label {
+        font-size: 8pt !important;
+    }
+
+    .services-strip {
+        font-size: 8pt !important;
+        line-height: 1.4 !important;
+    }
+
+    .address-line {
+        font-size: 9pt !important;
+        margin-bottom: 8px !important;
+    }
+
+    .patient-info {
+        font-size: 11pt !important;
+    }
+
+    .signature-label {
+        font-size: 10pt !important;
     }
 
     .bill-form {
@@ -330,17 +369,20 @@ button {
         white-space: nowrap !important;
         page-break-inside: avoid !important;
         break-inside: avoid !important;
+        font-size: 11pt !important;
     }
 
     .bill-meta {
         display: flex !important;
         flex-direction: row !important;
         justify-content: space-between !important;
+        font-size: 11pt !important;
     }
 
     .amount-section {
         margin-top: 0 !important;
         padding-top: 4mm !important;
+        font-size: 11pt !important;
     }
 
     .signatures-section {
@@ -358,21 +400,7 @@ button {
         background: transparent !important;
         -webkit-appearance: none;
         appearance: none;
-    }
-
-    /* Reduce service strip font so it wraps within the width */
-    .services-strip {
-        font-size: 0.65rem !important;
-        line-height: 1.4 !important;
-    }
-
-    .consulting-hours {
-        font-size: 0.72rem !important;
-    }
-
-    .address-line {
-        font-size: 0.75rem !important;
-        margin-bottom: 10px !important;
+        font-size: 11pt !important;
     }
 
     .bill-divider {

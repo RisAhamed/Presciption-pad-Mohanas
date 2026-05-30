@@ -220,11 +220,11 @@ function App() {
         await new Promise((resolve) => requestAnimationFrame(resolve));
 
         const opt = {
-            margin: [10, 15, 10, 15],
+            margin: [8, 10, 8, 10],
             filename: `DrMohana_Bill_${billNo}_${date}.pdf`,
             image: { type: 'jpeg', quality: 0.98 },
             html2canvas: {
-                scale: 2,
+                scale: 3,
                 useCORS: true,
                 allowTaint: true,
                 scrollX: 0,
@@ -237,7 +237,7 @@ function App() {
                 height: 1123,   // Fixed A4 height — ensures single page, no overflow
                 logging: false,
             },
-            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait', compress: false },
             pagebreak: { mode: 'avoid-all' },
         };
 
