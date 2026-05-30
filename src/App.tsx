@@ -180,7 +180,7 @@ function App() {
         bill.style.left = '0';
         bill.style.top = '0';
         bill.style.margin = '0';
-        bill.style.width = '794px';
+        bill.style.width = '719px';
         // CRITICAL: Do NOT set a fixed height — let content define height naturally
         // Setting height: 1123px causes the spacer to expand and overflow into page 2
         bill.style.height = 'auto';
@@ -254,7 +254,7 @@ function App() {
         const origSpacerHeight = billSpacer?.style.height || '';
 
         // Step 9: Calculate exact spacer height to push footer to bottom of A4
-        const A4_HEIGHT_PX = 1123;
+        const A4_HEIGHT_PX = 1059;
         const billPaddingTopBottom = 72; // matches CSS padding: 36px top + 36px bottom
 
         // Temporarily collapse spacer to 0 so we can measure true content heights
@@ -307,12 +307,12 @@ function App() {
                 allowTaint: false,
                 scrollX: 0,
                 scrollY: 0,
-                windowWidth: 794,
-                windowHeight: 1123,
+                windowWidth: 719,
+                windowHeight: 1059,
                 x: 0,
                 y: 0,
-                width: 794,
-                height: 1123,   // Fixed A4 height — ensures single page, no overflow
+                width: 719,
+                height: 1059,   // Fixed A4 height — ensures single page, no overflow
                 logging: false,
             },
             jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait', compress: false },
