@@ -31,7 +31,7 @@ function App() {
         lines.push("Patient: " + name + (age ? " (Age: " + age + ")" : ""));
         lines.push("");
         lines.push("Procedures:");
-        for (let i = 1; i <= 4; i++) {
+        for (let i = 1; i <= 10; i++) {
             const procName = (document.getElementById('proc' + i + 'Name') as HTMLInputElement)?.value;
             const procDate = (document.getElementById('proc' + i + 'Date') as HTMLInputElement)?.value;
             if (procName) {
@@ -46,7 +46,24 @@ function App() {
     };
     */
 
+    const updateEmptyRowClasses = () => {
+        for (let i = 1; i <= 10; i++) {
+            const row = document.getElementById(`procedure-row-${i}`);
+            const nameInput = document.getElementById(`proc${i}Name`) as HTMLInputElement | null;
+            const dateInput = document.getElementById(`proc${i}Date`) as HTMLInputElement | null;
+            if (!row) continue;
+            const nameEmpty = !nameInput?.value?.trim();
+            const dateEmpty = !dateInput?.value?.trim();
+            if (nameEmpty && dateEmpty) {
+                row.classList.add('row-empty');
+            } else {
+                row.classList.remove('row-empty');
+            }
+        }
+    };
+
     const handlePrint = () => {
+        updateEmptyRowClasses();
         window.print();
     };
 
@@ -56,6 +73,10 @@ function App() {
 
         const billNo = (document.getElementById('billNo') as HTMLInputElement)?.value || 'New';
         const date = (document.getElementById('billDate') as HTMLInputElement)?.value || 'Date';
+
+        // Declare tracking arrays for hiding empty rows inline (for html2canvas)
+        const allProcRows: HTMLElement[] = [];
+        const rowWasHidden: boolean[] = [];
 
         // Step 1: Wait for all images inside the bill to be fully loaded
         const images = Array.from(bill.querySelectorAll('img'));
@@ -80,6 +101,26 @@ function App() {
         const toolbar = document.querySelector('.toolbar') as HTMLElement | null;
         const origToolbarDisplay = toolbar?.style.display || '';
         if (toolbar) toolbar.style.display = 'none';
+
+        // Mark empty rows via class (for print CSS)
+        updateEmptyRowClasses();
+
+        // Also hide empty rows via inline style (for html2canvas — ignores @media print)
+        for (let i = 1; i <= 10; i++) {
+            const row = document.getElementById(`procedure-row-${i}`) as HTMLElement | null;
+            if (!row) continue;
+            allProcRows.push(row);
+            if (row.classList.contains('row-empty')) {
+                rowWasHidden.push(true);
+                row.style.display = 'none';
+                row.style.height = '0';
+                row.style.margin = '0';
+                row.style.padding = '0';
+                row.style.overflow = 'hidden';
+            } else {
+                rowWasHidden.push(false);
+            }
+        }
 
         // Step 4: Save original bill styles
         const origStyles = {
@@ -308,6 +349,22 @@ function App() {
 
             // Restore toolbar
             if (toolbar) toolbar.style.display = origToolbarDisplay;
+
+            // Restore inline styles that were applied to empty rows for PDF capture
+            allProcRows.forEach((row, idx) => {
+                if (rowWasHidden[idx]) {
+                    row.style.display = '';
+                    row.style.height = '';
+                    row.style.margin = '';
+                    row.style.padding = '';
+                    row.style.overflow = '';
+                }
+            });
+            // Also remove row-empty class from all rows
+            for (let i = 1; i <= 10; i++) {
+                const row = document.getElementById(`procedure-row-${i}`);
+                if (row) row.classList.remove('row-empty');
+            }
         };
 
         if (typeof html2pdf !== 'undefined') {
@@ -428,9 +485,9 @@ function App() {
                         </div>
 
                         <div className="procedures-section">
-                            <div className="procedure-row">
+                            <div className="procedure-row" id="procedure-row-1">
                                 <div className="procedure-left">
-                                    <span>1.</span>
+                                    <span className="proc-number" aria-hidden="true">1.</span>
                                     <label htmlFor="proc1Name" style={{ display: 'none' }}>Procedure 1</label>
                                     <input type="text" id="proc1Name" className="input-inline procedure-name-input" placeholder="Procedure description" />
                                 </div>
@@ -439,9 +496,9 @@ function App() {
                                     <input type="date" id="proc1Date" className="input-inline procedure-date-input" />
                                 </div>
                             </div>
-                            <div className="procedure-row">
+                            <div className="procedure-row" id="procedure-row-2">
                                 <div className="procedure-left">
-                                    <span>2.</span>
+                                    <span className="proc-number" aria-hidden="true">2.</span>
                                     <label htmlFor="proc2Name" style={{ display: 'none' }}>Procedure 2</label>
                                     <input type="text" id="proc2Name" className="input-inline procedure-name-input" placeholder="Procedure description" />
                                 </div>
@@ -450,9 +507,9 @@ function App() {
                                     <input type="date" id="proc2Date" className="input-inline procedure-date-input" />
                                 </div>
                             </div>
-                            <div className="procedure-row">
+                            <div className="procedure-row" id="procedure-row-3">
                                 <div className="procedure-left">
-                                    <span>3.</span>
+                                    <span className="proc-number" aria-hidden="true">3.</span>
                                     <label htmlFor="proc3Name" style={{ display: 'none' }}>Procedure 3</label>
                                     <input type="text" id="proc3Name" className="input-inline procedure-name-input" placeholder="Procedure description" />
                                 </div>
@@ -461,15 +518,81 @@ function App() {
                                     <input type="date" id="proc3Date" className="input-inline procedure-date-input" />
                                 </div>
                             </div>
-                            <div className="procedure-row">
+                            <div className="procedure-row" id="procedure-row-4">
                                 <div className="procedure-left">
-                                    <span>4.</span>
+                                    <span className="proc-number" aria-hidden="true">4.</span>
                                     <label htmlFor="proc4Name" style={{ display: 'none' }}>Procedure 4</label>
                                     <input type="text" id="proc4Name" className="input-inline procedure-name-input" placeholder="Procedure description" />
                                 </div>
                                 <div className="procedure-right">
                                     <label htmlFor="proc4Date">ON</label>
                                     <input type="date" id="proc4Date" className="input-inline procedure-date-input" />
+                                </div>
+                            </div>
+                            <div className="procedure-row" id="procedure-row-5">
+                                <div className="procedure-left">
+                                    <span className="proc-number" aria-hidden="true">5.</span>
+                                    <label htmlFor="proc5Name" style={{ display: 'none' }}>Procedure 5</label>
+                                    <input type="text" id="proc5Name" className="input-inline procedure-name-input" placeholder="Procedure description" />
+                                </div>
+                                <div className="procedure-right">
+                                    <label htmlFor="proc5Date">ON</label>
+                                    <input type="date" id="proc5Date" className="input-inline procedure-date-input" />
+                                </div>
+                            </div>
+                            <div className="procedure-row" id="procedure-row-6">
+                                <div className="procedure-left">
+                                    <span className="proc-number" aria-hidden="true">6.</span>
+                                    <label htmlFor="proc6Name" style={{ display: 'none' }}>Procedure 6</label>
+                                    <input type="text" id="proc6Name" className="input-inline procedure-name-input" placeholder="Procedure description" />
+                                </div>
+                                <div className="procedure-right">
+                                    <label htmlFor="proc6Date">ON</label>
+                                    <input type="date" id="proc6Date" className="input-inline procedure-date-input" />
+                                </div>
+                            </div>
+                            <div className="procedure-row" id="procedure-row-7">
+                                <div className="procedure-left">
+                                    <span className="proc-number" aria-hidden="true">7.</span>
+                                    <label htmlFor="proc7Name" style={{ display: 'none' }}>Procedure 7</label>
+                                    <input type="text" id="proc7Name" className="input-inline procedure-name-input" placeholder="Procedure description" />
+                                </div>
+                                <div className="procedure-right">
+                                    <label htmlFor="proc7Date">ON</label>
+                                    <input type="date" id="proc7Date" className="input-inline procedure-date-input" />
+                                </div>
+                            </div>
+                            <div className="procedure-row" id="procedure-row-8">
+                                <div className="procedure-left">
+                                    <span className="proc-number" aria-hidden="true">8.</span>
+                                    <label htmlFor="proc8Name" style={{ display: 'none' }}>Procedure 8</label>
+                                    <input type="text" id="proc8Name" className="input-inline procedure-name-input" placeholder="Procedure description" />
+                                </div>
+                                <div className="procedure-right">
+                                    <label htmlFor="proc8Date">ON</label>
+                                    <input type="date" id="proc8Date" className="input-inline procedure-date-input" />
+                                </div>
+                            </div>
+                            <div className="procedure-row" id="procedure-row-9">
+                                <div className="procedure-left">
+                                    <span className="proc-number" aria-hidden="true">9.</span>
+                                    <label htmlFor="proc9Name" style={{ display: 'none' }}>Procedure 9</label>
+                                    <input type="text" id="proc9Name" className="input-inline procedure-name-input" placeholder="Procedure description" />
+                                </div>
+                                <div className="procedure-right">
+                                    <label htmlFor="proc9Date">ON</label>
+                                    <input type="date" id="proc9Date" className="input-inline procedure-date-input" />
+                                </div>
+                            </div>
+                            <div className="procedure-row" id="procedure-row-10">
+                                <div className="procedure-left">
+                                    <span className="proc-number" aria-hidden="true">10.</span>
+                                    <label htmlFor="proc10Name" style={{ display: 'none' }}>Procedure 10</label>
+                                    <input type="text" id="proc10Name" className="input-inline procedure-name-input" placeholder="Procedure description" />
+                                </div>
+                                <div className="procedure-right">
+                                    <label htmlFor="proc10Date">ON</label>
+                                    <input type="date" id="proc10Date" className="input-inline procedure-date-input" />
                                 </div>
                             </div>
                         </div>

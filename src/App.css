@@ -205,6 +205,11 @@ button {
     min-width: 0;
 }
 .procedure-left span { flex-shrink: 0; font-weight: 500; }
+.proc-number {
+    visibility: hidden;   /* Invisible on screen but still takes up space for alignment */
+    width: 20px;
+    flex-shrink: 0;
+}
 .procedure-name-input { flex: 1; min-width: 0; }
 .procedure-right {
     display: flex;
@@ -405,6 +410,15 @@ button {
 
     .bill-divider {
         margin: 8px 0 !important;
+    }
+
+    .procedure-row.row-empty {
+        display: none !important;
+        visibility: hidden !important;
+        height: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow: hidden !important;
     }
 }
 
