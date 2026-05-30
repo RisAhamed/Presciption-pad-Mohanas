@@ -16,6 +16,7 @@ function App() {
         }
     }, []);
 
+    /*
     const getBillSummary = () => {
         const billNo = (document.getElementById('billNo') as HTMLInputElement)?.value || 'N/A';
         const date = (document.getElementById('billDate') as HTMLInputElement)?.value || 'N/A';
@@ -43,6 +44,7 @@ function App() {
         lines.push("Thank you for choosing Dr. Mohana's Dental Care!");
         return lines.join("\n");
     };
+    */
 
     const handlePrint = () => {
         window.print();
@@ -167,16 +169,38 @@ function App() {
             row.style.alignItems = 'center';
         });
 
-        // Step 9: Collapse the bill-spacer to a fixed small height — do NOT let it flex-grow
+        // Step 9: Set bill-spacer to push footer content to the bottom of A4
         const billSpacer = bill.querySelector('.bill-spacer') as HTMLElement | null;
         const origSpacerFlex = billSpacer?.style.flex || '';
         const origSpacerMinHeight = billSpacer?.style.minHeight || '';
         const origSpacerHeight = billSpacer?.style.height || '';
+
+        // Step 9: Calculate exact spacer height to push footer to bottom of A4
+        const A4_HEIGHT_PX = 1123;
+        const billPaddingTopBottom = 72; // matches CSS padding: 36px top + 36px bottom
+
+        // Temporarily collapse spacer to 0 so we can measure true content heights
         if (billSpacer) {
             billSpacer.style.flex = 'none';
             billSpacer.style.minHeight = '0';
-            billSpacer.style.height = '80px'; // fixed reasonable gap between procedures and amount
+            billSpacer.style.height = '0px';
         }
+
+        // Wait one frame for the collapse to paint
+        await new Promise((resolve) => requestAnimationFrame(resolve));
+
+        // Now measure: everything in the bill excluding the spacer
+        const totalContentWithoutSpacer = bill.scrollHeight;
+
+        // The spacer should fill the gap so total = A4_HEIGHT_PX
+        const spacerHeight = Math.max(20, A4_HEIGHT_PX - billPaddingTopBottom - totalContentWithoutSpacer);
+
+        if (billSpacer) {
+            billSpacer.style.height = `${spacerHeight}px`;
+        }
+
+        // Wait one more frame for the spacer to expand
+        await new Promise((resolve) => requestAnimationFrame(resolve));
 
         // Step 10: Hide input borders for clean PDF output
         const inputs = bill.querySelectorAll('input');
@@ -195,11 +219,8 @@ function App() {
         await new Promise((resolve) => requestAnimationFrame(resolve));
         await new Promise((resolve) => requestAnimationFrame(resolve));
 
-        // Step 12: Measure actual rendered height after all overrides
-        const actualHeight = bill.scrollHeight;
-
         const opt = {
-            margin: 0,
+            margin: [10, 15, 10, 15],
             filename: `DrMohana_Bill_${billNo}_${date}.pdf`,
             image: { type: 'jpeg', quality: 0.98 },
             html2canvas: {
@@ -209,11 +230,11 @@ function App() {
                 scrollX: 0,
                 scrollY: 0,
                 windowWidth: 794,
-                windowHeight: actualHeight,
+                windowHeight: 1123,
                 x: 0,
                 y: 0,
                 width: 794,
-                height: actualHeight,
+                height: 1123,   // Fixed A4 height — ensures single page, no overflow
                 logging: false,
             },
             jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
@@ -397,13 +418,13 @@ function App() {
                         </div>
 
                         <div className="patient-info">
-                            This is to certify that Mr/Mrs/Miss/Master,
+                            This is to certify that
                             <label htmlFor="patientName" style={{ display: 'none' }}>Patient Name</label>
                             <input type="text" id="patientName" className="input-inline patient-name-input" placeholder="Patient Name" />
                             aged
                             <label htmlFor="patientAge" style={{ display: 'none' }}>Age</label>
                             <input type="number" id="patientAge" className="input-inline age-input" placeholder="00" min="0" max="150" />
-                            yrs
+                            yrs was under my treatment for the following dental procedures 
                         </div>
 
                         <div className="procedures-section">
