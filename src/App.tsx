@@ -104,6 +104,8 @@ function App() {
         let logoImg: HTMLImageElement | null = null;
         let origLogoSrc = '';
         let billDateInput: HTMLInputElement | null = null;
+        const procDateInputs: HTMLInputElement[] = [];
+        const procFormattedSpans: HTMLSpanElement[] = [];
 
         // Inject a formatted date span for PDF rendering
         billDateInput = document.getElementById('billDate') as HTMLInputElement | null;
@@ -114,6 +116,32 @@ function App() {
         if (billDateInput && billDateInput.parentNode) {
             billDateInput.parentNode.insertBefore(formattedSpan, billDateInput.nextSibling);
             billDateInput.style.display = 'none';
+        }
+
+        // Inject formatted date spans for all procedure date inputs
+        for (let i = 1; i <= 10; i++) {
+            const procDateInput = document.getElementById(`proc${i}Date`) as HTMLInputElement | null;
+            if (!procDateInput) continue;
+            
+            const rawProcDate = procDateInput.value || '';
+            if (!rawProcDate) {
+                procDateInputs.push(procDateInput);
+                procFormattedSpans.push(document.createElement('span')); // empty placeholder to keep array indices aligned
+                continue;
+            }
+            
+            const formattedProcDate = rawProcDate.split('-').reverse().join('-'); // YYYY-MM-DD → DD-MM-YYYY
+            
+            const procSpan = document.createElement('span');
+            procSpan.className = 'proc-date-formatted';
+            procSpan.style.cssText = 'font-size: inherit; color: inherit; font-family: inherit; font-weight: inherit;';
+            procSpan.textContent = formattedProcDate;
+            
+            procDateInput.parentNode?.insertBefore(procSpan, procDateInput.nextSibling);
+            procDateInput.style.display = 'none';
+            
+            procDateInputs.push(procDateInput);
+            procFormattedSpans.push(procSpan);
         }
 
         // Step 0: Convert logo to base64 to avoid CORS issues in html2canvas
@@ -427,6 +455,13 @@ function App() {
             const formattedSpan = document.getElementById('billDateFormatted');
             if (formattedSpan) formattedSpan.remove();
             if (billDateInput) billDateInput.style.display = '';
+
+            // Remove injected procedure date spans and restore procedure date inputs
+            procDateInputs.forEach((inp, idx) => {
+                const span = procFormattedSpans[idx];
+                if (span && span.parentNode) span.parentNode.removeChild(span);
+                if (inp) inp.style.display = '';
+            });
         };
 
         if (typeof html2pdf !== 'undefined') {
