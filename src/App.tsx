@@ -93,13 +93,28 @@ function App() {
         if (!bill) return;
 
         const billNo = (document.getElementById('billNo') as HTMLInputElement)?.value || 'New';
-        const date = (document.getElementById('billDate') as HTMLInputElement)?.value || 'Date';
+        const rawDate = (document.getElementById('billDate') as HTMLInputElement)?.value || '';
+        const date = rawDate
+            ? rawDate.split('-').reverse().join('-')   // converts 2026-05-31 → 31-05-2026
+            : 'Date';
 
         // Declare tracking arrays for hiding empty rows inline (for html2canvas)
         const allProcRows: HTMLElement[] = [];
         const rowWasHidden: boolean[] = [];
         let logoImg: HTMLImageElement | null = null;
         let origLogoSrc = '';
+        let billDateInput: HTMLInputElement | null = null;
+
+        // Inject a formatted date span for PDF rendering
+        billDateInput = document.getElementById('billDate') as HTMLInputElement | null;
+        const formattedSpan = document.createElement('span');
+        formattedSpan.id = 'billDateFormatted';
+        formattedSpan.style.cssText = 'font-size: inherit; color: inherit; font-family: inherit;';
+        formattedSpan.textContent = date;
+        if (billDateInput && billDateInput.parentNode) {
+            billDateInput.parentNode.insertBefore(formattedSpan, billDateInput.nextSibling);
+            billDateInput.style.display = 'none';
+        }
 
         // Step 0: Convert logo to base64 to avoid CORS issues in html2canvas
         logoImg = bill.querySelector('.clinic-logo') as HTMLImageElement | null;
@@ -407,6 +422,11 @@ function App() {
             if (logoImg) {
                 logoImg.src = origLogoSrc;
             }
+
+            // Remove the injected formatted date span and restore date input
+            const formattedSpan = document.getElementById('billDateFormatted');
+            if (formattedSpan) formattedSpan.remove();
+            if (billDateInput) billDateInput.style.display = '';
         };
 
         if (typeof html2pdf !== 'undefined') {
@@ -481,13 +501,13 @@ function App() {
                                 </div>
                             </div>
                             <div className="header-right">
-                                <div className="contact-info">Ph: +91 9003227250</div>
-                                <div className="consulting-hours">
+                                <div className="appointment-label" style={{ marginTop: '4px' }}>For Appointment</div>
+                                <div className="contact-info">Ph: 9003227250</div>
+                                <div className="consulting-hours" style={{ marginTop: '6px' }}>
                                     Morning: 10.00 am to 1.00 pm<br />
                                     Evening: 5.30 pm to 8.30 pm<br />
                                     (Sunday holiday)
                                 </div>
-                                <div className="appointment-label">For Appointment</div>
                             </div>
                         </div>
                     </header>
