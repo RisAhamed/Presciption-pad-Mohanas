@@ -1,10 +1,7 @@
 import { useEffect, useRef } from 'react';
 import './App.css';
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-declare const html2canvas: any;
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-declare const jsPDF: any;
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 
 function App() {
     const billRef = useRef<HTMLDivElement>(null);
@@ -62,11 +59,6 @@ function App() {
     const downloadPDF = async () => {
         const bill = billRef.current;
         if (!bill) return;
-
-        if (typeof html2canvas === 'undefined' || typeof jsPDF === 'undefined') {
-            alert('PDF libraries are still loading. Please try again in a moment.');
-            return;
-        }
 
         const billNo = (document.getElementById('billNo') as HTMLInputElement)?.value || 'New';
         const rawDate = (document.getElementById('billDate') as HTMLInputElement)?.value || '';
