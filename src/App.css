@@ -73,15 +73,24 @@ button {
 }
 
 /* ==================== BILL ==================== */
+/*
+ * IMPORTANT: height is set to exactly 1123px (A4 at 96dpi).
+ * This is intentional — it ensures the flex spacer (.bill-spacer)
+ * can stretch to fill the remaining space and push .signatures-section
+ * to the bottom of the page at all times, regardless of how many
+ * procedure rows are filled in.
+ * Do NOT change this to min-height or auto.
+ */
 .bill-container {
     background: var(--bg-bill);
-    width: 760px;
-    min-height: 1060px;
+    width: 794px;
+    height: 1123px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.1);
     border-radius: 4px;
     padding: 36px 44px;
     display: flex;
     flex-direction: column;
+    overflow: hidden;
 }
 
 /* Header */
@@ -149,8 +158,13 @@ button {
     margin-bottom: 20px;
 }
 
-/* Form area */
-.bill-form { display: flex; flex-direction: column; flex: 1; }
+/* Form area — flex column so spacer stretches to fill remaining height */
+.bill-form {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;   /* required for flex children to shrink/grow correctly */
+}
 
 .bill-meta {
     display: flex;
@@ -206,7 +220,7 @@ button {
 }
 .procedure-left span { flex-shrink: 0; font-weight: 500; }
 .proc-number {
-    visibility: hidden;   /* Invisible on screen but still takes up space for alignment */
+    visibility: hidden;
     width: 20px;
     flex-shrink: 0;
 }
@@ -224,6 +238,7 @@ button {
 .amount-section {
     line-height: 2;
     font-size: 0.95rem;
+    flex-shrink: 0;
 }
 .amount-input {
     width: 120px;
@@ -231,13 +246,24 @@ button {
     text-align: right;
 }
 
-/* Signatures pushed to bottom via flex spacer */
-.bill-spacer { flex: 1; min-height: 40px; }
+/*
+ * SPACER — this is the key element that pushes signatures to the bottom.
+ * flex: 1 means it grows to fill ALL remaining vertical space between
+ * the procedures section and the amount/signature sections.
+ * flex-shrink: 0 prevents it from collapsing when content is heavy.
+ * min-height: 20px ensures there is always at least a small gap.
+ */
+.bill-spacer {
+    flex: 1;
+    flex-shrink: 0;
+    min-height: 20px;
+}
 
 .signatures-section {
     display: flex;
     justify-content: space-between;
     padding-top: 20px;
+    flex-shrink: 0;
 }
 .signature-box { text-align: center; }
 .signature-line {
@@ -274,8 +300,8 @@ button {
     }
 
     .bill-container {
-        width: 180mm !important;       /* 210mm - 2×15mm margin */
-        height: 277mm !important;      /* 297mm - 2×10mm margin */
+        width: 180mm !important;
+        height: 277mm !important;
         max-width: none !important;
         min-height: unset !important;
         box-shadow: none !important;
@@ -287,67 +313,35 @@ button {
         overflow: hidden !important;
         display: flex !important;
         flex-direction: column !important;
-        font-size: 11pt !important;   /* Upgrade base from ~9pt to 11pt for comfortable reading */
+        font-size: 11pt !important;
     }
-
-    /* CRITICAL: Do NOT apply font-size to all children — it causes overflow */
-    /* Remove or do NOT include: .bill-container * { font-size: 105%; } */
 
     .clinic-name {
-        font-size: 22pt !important;   /* Was 1.6rem ≈ ~12pt, now visibly larger on A4 */
+        font-size: 22pt !important;
     }
-
-    .doctor-name {
-        font-size: 11pt !important;
-    }
-
-    .doctor-title {
-        font-size: 9.5pt !important;
-    }
-
-    .contact-info {
-        font-size: 10pt !important;
-    }
-
-    .consulting-hours {
-        font-size: 8.5pt !important;
-    }
-
-    .appointment-label {
-        font-size: 8pt !important;
-    }
-
-    .services-strip {
-        font-size: 8pt !important;
-        line-height: 1.4 !important;
-    }
-
-    .address-line {
-        font-size: 9pt !important;
-        margin-bottom: 8px !important;
-    }
-
-    .patient-info {
-        font-size: 11pt !important;
-    }
-
-    .signature-label {
-        font-size: 10pt !important;
-    }
+    .doctor-name { font-size: 11pt !important; }
+    .doctor-title { font-size: 9.5pt !important; }
+    .contact-info { font-size: 10pt !important; }
+    .consulting-hours { font-size: 8.5pt !important; }
+    .appointment-label { font-size: 8pt !important; }
+    .services-strip { font-size: 8pt !important; line-height: 1.4 !important; }
+    .address-line { font-size: 9pt !important; margin-bottom: 8px !important; }
+    .patient-info { font-size: 11pt !important; }
+    .signature-label { font-size: 10pt !important; }
 
     .bill-form {
         display: flex !important;
         flex-direction: column !important;
         flex: 1 !important;
+        min-height: 0 !important;
         overflow: hidden !important;
     }
 
-    /* Collapse the spacer completely in print so nothing pushes out of bounds */
+    /* Spacer fills remaining height — signatures always at bottom */
     .bill-spacer {
         flex: 1 !important;
         min-height: 0 !important;
-        /* Remove max-height entirely — let flex: 1 fill remaining space naturally
-           within the fixed 277mm bill height */
+        flex-shrink: 1 !important;
     }
 
     .header-details {
@@ -355,16 +349,12 @@ button {
         flex-direction: row !important;
         justify-content: space-between !important;
     }
-
     .header-left {
         display: flex !important;
         flex-direction: row !important;
         align-items: center !important;
     }
-
-    .header-right {
-        text-align: right !important;
-    }
+    .header-right { text-align: right !important; }
 
     .procedure-row {
         display: flex !important;
@@ -376,20 +366,18 @@ button {
         break-inside: avoid !important;
         font-size: 11pt !important;
     }
-
     .bill-meta {
         display: flex !important;
         flex-direction: row !important;
         justify-content: space-between !important;
         font-size: 11pt !important;
     }
-
     .amount-section {
         margin-top: 0 !important;
         padding-top: 4mm !important;
         font-size: 11pt !important;
+        flex-shrink: 0 !important;
     }
-
     .signatures-section {
         display: flex !important;
         flex-direction: row !important;
@@ -398,7 +386,6 @@ button {
         padding-top: 0 !important;
         flex-shrink: 0 !important;
     }
-
     .input-inline {
         border: none !important;
         border-bottom: 1px solid transparent !important;
@@ -407,11 +394,7 @@ button {
         appearance: none;
         font-size: 11pt !important;
     }
-
-    .bill-divider {
-        margin: 8px 0 !important;
-    }
-
+    .bill-divider { margin: 8px 0 !important; }
     .procedure-row.row-empty {
         display: none !important;
         visibility: hidden !important;
@@ -423,12 +406,13 @@ button {
 }
 
 /* ==================== RESPONSIVE ==================== */
-@media screen and (max-width: 800px) {
+@media screen and (max-width: 820px) {
     .bill-container {
         width: 100%;
+        height: auto;
+        min-height: 100vh;
         padding: 20px 16px;
         border-radius: 0;
-        min-height: auto;
     }
     .app-shell { padding: 10px 0; }
     .clinic-name { font-size: 1.6rem; }
@@ -442,16 +426,4 @@ button {
     .signatures-section { flex-direction: column; gap: 30px; align-items: center; }
     .toolbar { flex-direction: column; align-items: stretch; }
     .action-buttons { justify-content: center; }
-}
-
-/* ==================== PDF CAPTURE STATE ==================== */
-/* Applied via inline styles during pdf capture — these ensure
-   the bill-form fills height correctly when spacer is collapsed */
-.bill-container[style*="position: fixed"] .bill-form {
-    flex: none;
-    height: auto;
-}
-.bill-container[style*="position: fixed"] .bill-spacer {
-    flex: none !important;
-    min-height: 0 !important;
 }

@@ -151,7 +151,7 @@ function App() {
             }
         }
 
-        // ─── Save bill styles ───
+        // ─── Save original bill styles ───
         const origStyles = {
             position: bill.style.position,
             left: bill.style.left,
@@ -167,32 +167,32 @@ function App() {
             overflow: bill.style.overflow,
         };
 
-        // ─── A4 at 96 dpi: 794 × 1123 px ───
+        // ─── A4 at 96 dpi ───
         const A4_W = 794;
         const A4_H = 1123;
 
-        // ─── Position bill at top-left, exact A4 size ───
-        // CRITICAL: set BOTH width AND height to exact A4 dimensions.
-        // This ensures html2canvas captures exactly one full A4 page —
-        // no more half-page content with blank white bottom.
+        // ─── Lock bill to exact A4 dimensions for capture ───
+        // Both width AND height are fixed so html2canvas captures
+        // exactly one full A4 page with no blank bottom space.
         bill.style.position = 'fixed';
         bill.style.left = '0';
         bill.style.top = '0';
         bill.style.margin = '0';
         bill.style.width = `${A4_W}px`;
-        bill.style.height = `${A4_H}px`;   // ← FIXED: lock to exact A4 height
+        bill.style.height = `${A4_H}px`;
         bill.style.minHeight = `${A4_H}px`;
         bill.style.maxWidth = 'none';
         bill.style.boxShadow = 'none';
         bill.style.borderRadius = '0';
         bill.style.zIndex = '9999';
-        bill.style.overflow = 'hidden';     // ← clip anything that overflows A4
+        bill.style.overflow = 'hidden';
 
         // ─── Force flex on key layout elements ───
         const headerDetails = bill.querySelector('.header-details') as HTMLElement | null;
         const headerLeft = bill.querySelector('.header-left') as HTMLElement | null;
         const sigSection = bill.querySelector('.signatures-section') as HTMLElement | null;
         const billMeta = bill.querySelector('.bill-meta') as HTMLElement | null;
+        const billForm = bill.querySelector('.bill-form') as HTMLElement | null;
         const origHDDisplay = headerDetails?.style.display || '';
         const origHDFlexDir = headerDetails?.style.flexDirection || '';
         const origHDJustify = headerDetails?.style.justifyContent || '';
@@ -201,6 +201,9 @@ function App() {
         const origSigDisplay = sigSection?.style.display || '';
         const origSigJustify = sigSection?.style.justifyContent || '';
         const origBMDisplay = billMeta?.style.display || '';
+        const origFormDisplay = billForm?.style.display || '';
+        const origFormFlex = billForm?.style.flex || '';
+        const origFormFlexDir = billForm?.style.flexDirection || '';
 
         if (headerDetails) {
             headerDetails.style.display = 'flex';
@@ -219,11 +222,19 @@ function App() {
             sigSection.style.flexDirection = 'row';
             sigSection.style.justifyContent = 'space-between';
             sigSection.style.alignItems = 'flex-start';
+            sigSection.style.flexShrink = '0';
         }
         if (billMeta) {
             billMeta.style.display = 'flex';
             billMeta.style.flexDirection = 'row';
             billMeta.style.justifyContent = 'space-between';
+        }
+        // CRITICAL: bill-form must be flex column with flex:1 so the
+        // .bill-spacer can grow and push signatures to the bottom.
+        if (billForm) {
+            billForm.style.display = 'flex';
+            billForm.style.flexDirection = 'column';
+            billForm.style.flex = '1';
         }
 
         const procedureRows = Array.from(bill.querySelectorAll('.procedure-row')) as HTMLElement[];
@@ -240,7 +251,7 @@ function App() {
             row.style.alignItems = 'center';
         });
 
-        // ─── Set spacer to fill remaining space ───
+        // ─── Set spacer to flex:1 so it fills remaining A4 height ───
         const billSpacer = bill.querySelector('.bill-spacer') as HTMLElement | null;
         const origSpacerFlex = billSpacer?.style.flex || '';
         const origSpacerMinHeight = billSpacer?.style.minHeight || '';
@@ -252,7 +263,7 @@ function App() {
             billSpacer.style.height = 'auto';
         }
 
-        // ─── Hide input styling ───
+        // ─── Hide input styling for clean capture ───
         const inputs = bill.querySelectorAll('input');
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const savedInputStyles: any[] = [];
@@ -262,11 +273,11 @@ function App() {
             inp.style.background = 'transparent';
         });
 
-        // Wait two frames for layout to settle
+        // Wait two frames for layout to fully settle
         await new Promise((resolve) => requestAnimationFrame(resolve));
         await new Promise((resolve) => requestAnimationFrame(resolve));
 
-        // ─── Restore function ───
+        // ─── Restore all styles after capture ───
         const restoreStyles = () => {
             bill.style.position = origStyles.position;
             bill.style.left = origStyles.left;
@@ -298,11 +309,17 @@ function App() {
                 sigSection.style.justifyContent = origSigJustify;
                 sigSection.style.flexDirection = '';
                 sigSection.style.alignItems = '';
+                sigSection.style.flexShrink = '';
             }
             if (billMeta) {
                 billMeta.style.display = origBMDisplay;
                 billMeta.style.flexDirection = '';
                 billMeta.style.justifyContent = '';
+            }
+            if (billForm) {
+                billForm.style.display = origFormDisplay;
+                billForm.style.flex = origFormFlex;
+                billForm.style.flexDirection = origFormFlexDir;
             }
 
             procedureRows.forEach((row, idx) => {
@@ -353,8 +370,8 @@ function App() {
         };
 
         // ─── Capture with html2canvas → jsPDF ───
-        // KEY FIX: capture exactly A4_W × A4_H pixels (bill is locked to this size).
-        // The canvas will always be exactly one A4 page — map it 1:1 to the PDF page.
+        // Bill is locked to exactly A4_W x A4_H px.
+        // Canvas will be exactly one A4 page — mapped 1:1 to 210x297mm.
         try {
             const canvas = await html2canvas(bill, {
                 scale: 2,
@@ -367,7 +384,7 @@ function App() {
                 x: 0,
                 y: 0,
                 width: A4_W,
-                height: A4_H,       // ← FIXED: always capture exactly A4_H, not scrollHeight
+                height: A4_H,
                 logging: false,
             });
 
@@ -380,8 +397,7 @@ function App() {
             });
 
             const imgData = canvas.toDataURL('image/jpeg', 0.97);
-
-            // Canvas is exactly A4 — fill the entire PDF page with no blank space
+            // Canvas is exactly A4 — fill the entire page, no blank space
             pdf.addImage(imgData, 'JPEG', 0, 0, 210, 297);
 
             pdf.save(`DrMohana_Bill_${billNo}_${date}.pdf`);
@@ -508,7 +524,7 @@ function App() {
                             ))}
                         </div>
 
-                        {/* Spacer pushes the amount and signatures to the bottom */}
+                        {/* Spacer — grows to fill remaining space, pushing signatures to bottom */}
                         <div className="bill-spacer"></div>
 
                         <div className="amount-section" style={{ marginBottom: '30px' }}>
