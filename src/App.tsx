@@ -167,24 +167,26 @@ function App() {
             overflow: bill.style.overflow,
         };
 
-        // ─── A4 dimensions at 96 dpi: 794 × 1123 px ───
-        // We capture at exactly this width so the canvas fills the full PDF page.
+        // ─── A4 at 96 dpi: 794 × 1123 px ───
         const A4_W = 794;
         const A4_H = 1123;
 
-        // ─── Position bill at top-left, full A4 width ───
+        // ─── Position bill at top-left, exact A4 size ───
+        // CRITICAL: set BOTH width AND height to exact A4 dimensions.
+        // This ensures html2canvas captures exactly one full A4 page —
+        // no more half-page content with blank white bottom.
         bill.style.position = 'fixed';
         bill.style.left = '0';
         bill.style.top = '0';
         bill.style.margin = '0';
         bill.style.width = `${A4_W}px`;
-        bill.style.height = 'auto';
+        bill.style.height = `${A4_H}px`;   // ← FIXED: lock to exact A4 height
         bill.style.minHeight = `${A4_H}px`;
         bill.style.maxWidth = 'none';
         bill.style.boxShadow = 'none';
         bill.style.borderRadius = '0';
         bill.style.zIndex = '9999';
-        bill.style.overflow = 'visible';
+        bill.style.overflow = 'hidden';     // ← clip anything that overflows A4
 
         // ─── Force flex on key layout elements ───
         const headerDetails = bill.querySelector('.header-details') as HTMLElement | null;
@@ -238,24 +240,17 @@ function App() {
             row.style.alignItems = 'center';
         });
 
-        // ─── Collapse spacer for measurement, then set to fill remainder ───
+        // ─── Set spacer to fill remaining space ───
         const billSpacer = bill.querySelector('.bill-spacer') as HTMLElement | null;
         const origSpacerFlex = billSpacer?.style.flex || '';
         const origSpacerMinHeight = billSpacer?.style.minHeight || '';
         const origSpacerHeight = billSpacer?.style.height || '';
 
         if (billSpacer) {
-            billSpacer.style.flex = 'none';
+            billSpacer.style.flex = '1';
             billSpacer.style.minHeight = '0';
-            billSpacer.style.height = '0px';
+            billSpacer.style.height = 'auto';
         }
-        await new Promise((resolve) => requestAnimationFrame(resolve));
-
-        const contentH = bill.scrollHeight;
-        const spacerH = Math.max(20, A4_H - contentH);
-        if (billSpacer) billSpacer.style.height = `${spacerH}px`;
-
-        await new Promise((resolve) => requestAnimationFrame(resolve));
 
         // ─── Hide input styling ───
         const inputs = bill.querySelectorAll('input');
@@ -267,6 +262,7 @@ function App() {
             inp.style.background = 'transparent';
         });
 
+        // Wait two frames for layout to settle
         await new Promise((resolve) => requestAnimationFrame(resolve));
         await new Promise((resolve) => requestAnimationFrame(resolve));
 
@@ -356,9 +352,9 @@ function App() {
             });
         };
 
-        // ─── Capture with html2canvas then write to jsPDF ───
-        // KEY FIX: windowWidth === bill width === A4_W so there is zero scaling mismatch.
-        // Then we map canvas pixels → A4 mm precisely ourselves.
+        // ─── Capture with html2canvas → jsPDF ───
+        // KEY FIX: capture exactly A4_W × A4_H pixels (bill is locked to this size).
+        // The canvas will always be exactly one A4 page — map it 1:1 to the PDF page.
         try {
             const canvas = await html2canvas(bill, {
                 scale: 2,
@@ -366,25 +362,16 @@ function App() {
                 allowTaint: false,
                 scrollX: 0,
                 scrollY: 0,
-                windowWidth: A4_W,       // must match bill.style.width exactly
+                windowWidth: A4_W,
                 windowHeight: A4_H,
                 x: 0,
                 y: 0,
                 width: A4_W,
-                height: bill.scrollHeight,  // capture actual rendered height
+                height: A4_H,       // ← FIXED: always capture exactly A4_H, not scrollHeight
                 logging: false,
             });
 
             restoreStyles();
-
-            // A4 in mm
-            const pageW_mm = 210;
-            const pageH_mm = 297;
-
-            // Canvas → mm conversion: canvas was rendered at A4_W px wide
-            // We want it to fill exactly pageW_mm on the PDF page.
-            const imgW_mm = pageW_mm;
-            const imgH_mm = (canvas.height / canvas.width) * imgW_mm;
 
             const pdf = new jsPDF({
                 unit: 'mm',
@@ -394,28 +381,8 @@ function App() {
 
             const imgData = canvas.toDataURL('image/jpeg', 0.97);
 
-            if (imgH_mm <= pageH_mm) {
-                // Content fits on one page — center vertically
-                pdf.addImage(imgData, 'JPEG', 0, 0, imgW_mm, imgH_mm);
-            } else {
-                // Content taller than one page — slice into pages
-                const pxPerMm = canvas.width / imgW_mm;
-                const pageH_px = pageH_mm * pxPerMm;
-                let yOffset = 0;
-                while (yOffset < canvas.height) {
-                    const sliceH_px = Math.min(pageH_px, canvas.height - yOffset);
-                    const sliceCanvas = document.createElement('canvas');
-                    sliceCanvas.width = canvas.width;
-                    sliceCanvas.height = sliceH_px;
-                    const ctx = sliceCanvas.getContext('2d')!;
-                    ctx.drawImage(canvas, 0, yOffset, canvas.width, sliceH_px, 0, 0, canvas.width, sliceH_px);
-                    const sliceData = sliceCanvas.toDataURL('image/jpeg', 0.97);
-                    const sliceH_mm = sliceH_px / pxPerMm;
-                    if (yOffset > 0) pdf.addPage();
-                    pdf.addImage(sliceData, 'JPEG', 0, 0, imgW_mm, sliceH_mm);
-                    yOffset += pageH_px;
-                }
-            }
+            // Canvas is exactly A4 — fill the entire PDF page with no blank space
+            pdf.addImage(imgData, 'JPEG', 0, 0, 210, 297);
 
             pdf.save(`DrMohana_Bill_${billNo}_${date}.pdf`);
         } catch (err) {
