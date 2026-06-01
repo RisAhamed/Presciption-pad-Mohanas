@@ -196,11 +196,21 @@ button {
 .date-input { width: 140px; font-family: 'Inter', sans-serif; }
 
 .patient-info {
-    line-height: 2;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 2px 4px;
+    line-height: 1.8;
     margin-bottom: 20px;
     font-size: 0.95rem;
 }
-.patient-name-input { width: 300px; font-weight: 500; }
+.patient-name-input {
+    width: auto;
+    min-width: 120px;
+    max-width: 100%;
+    flex: 1;          /* takes remaining space in the inline flow */
+    font-weight: 500;
+}
 .age-input { width: 50px; text-align: center; }
 
 .procedures-section { margin-bottom: 20px; }
@@ -420,7 +430,6 @@ button {
     .header-left { flex-direction: column; text-align: center; }
     .header-right { text-align: center; }
     .doctor-info { text-align: center; }
-    .patient-name-input { width: 180px; }
     .procedure-row { flex-wrap: wrap; white-space: normal; }
     .procedure-right { margin-left: 20px; }
     .signatures-section { flex-direction: column; gap: 30px; align-items: center; }

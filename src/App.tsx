@@ -528,7 +528,7 @@ function App() {
                         <div className="bill-spacer"></div>
 
                         <div className="amount-section" style={{ marginBottom: '30px' }}>
-                            I have received Rs.
+                            I have performed the above mentioned treatment procedures with informed consent from the patient and received Rs.
                             <label htmlFor="amount" style={{ display: 'none' }}>Amount</label>
                             <input type="number" id="amount" className="input-inline amount-input" placeholder="0.00" min="0" step="0.01" />
                             for the above mentioned treatment as professional charges.
