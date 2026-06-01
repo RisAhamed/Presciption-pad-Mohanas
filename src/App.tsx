@@ -572,7 +572,7 @@ function App() {
                                 background: 'transparent'
                             }}
                             />
-                            for the above mentioned treatment as professional charges.
+                            as professional charges.
                         </div>
 
                         <div className="signatures-section">
