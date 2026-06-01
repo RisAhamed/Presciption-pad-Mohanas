@@ -301,6 +301,12 @@ button {
 }
 .signature-label { font-weight: 600; font-size: 0.9rem; }
 
+#patientName,
+#patientAge,
+#amount {
+    border-bottom: 1px solid #000000;
+}
+
 /* ==================== PRINT ==================== */
 @media print {
     @page {
@@ -430,6 +436,11 @@ button {
         margin: 0 !important;
         padding: 0 !important;
         overflow: hidden !important;
+    }
+    #patientName,
+    #patientAge,
+    #amount {
+        border-bottom: 1px solid #000000 !important;
     }
 }
 

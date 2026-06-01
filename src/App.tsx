@@ -293,7 +293,11 @@ function App() {
         const savedInputStyles: any[] = [];
         inputs.forEach((inp) => {
             savedInputStyles.push({ borderBottom: inp.style.borderBottom, background: inp.style.background });
-            inp.style.borderBottom = '1px solid transparent';
+            if (inp.id === 'patientName' || inp.id === 'patientAge' || inp.id === 'amount') {
+                inp.style.borderBottom = '1px solid #000000';
+            } else {
+                inp.style.borderBottom = '1px solid transparent';
+            }
             inp.style.background = 'transparent';
         });
 
