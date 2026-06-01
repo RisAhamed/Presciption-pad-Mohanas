@@ -555,7 +555,7 @@ function App() {
                         {/* Spacer — grows to fill remaining space, pushing signatures to bottom */}
                         <div className="bill-spacer"></div>
 
-                        <div className="amount-section" style={{ marginBottom: '30px' }}>
+                        <div className="amount-section" style={{ marginBottom: '70px' }}>
                             I have performed the above mentioned treatment procedures with informed consent from the patient and received Rs.
                             <label htmlFor="amount" style={{ display: 'none' }}>Amount</label>
                             <input
