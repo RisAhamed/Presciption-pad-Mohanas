@@ -142,15 +142,28 @@ button {
     margin: 12px 0;
     opacity: 0.5;
 }
-
 .services-strip {
-    text-align: center;
-    font-size: 0.72rem;
-    font-weight: 600;
-    color: var(--primary);
-    margin-bottom: 6px;
-    line-height: 1.5;
+  text-align: center;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #01696f;
+  padding: 6px 16px;
+  line-height: 1.7;
+  width: 100%;
+  box-sizing: border-box;
+  word-break: keep-all;       /* CRITICAL: prevents mid-word line breaks */
+  overflow-wrap: normal;      /* do not force-break long words */
+  white-space: normal;
 }
+
+.bill-header,
+.services-strip-container {
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
 .address-line {
     text-align: center;
     font-size: 0.8rem;

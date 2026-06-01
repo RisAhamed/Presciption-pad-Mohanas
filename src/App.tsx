@@ -179,9 +179,11 @@ function App() {
             top: bill.style.top,
             margin: bill.style.margin,
             width: bill.style.width,
+            minWidth: bill.style.minWidth,
+            maxWidth: bill.style.maxWidth,
+            boxSizing: bill.style.boxSizing,
             height: bill.style.height,
             minHeight: bill.style.minHeight,
-            maxWidth: bill.style.maxWidth,
             boxShadow: bill.style.boxShadow,
             borderRadius: bill.style.borderRadius,
             zIndex: bill.style.zIndex,
@@ -189,7 +191,6 @@ function App() {
         };
 
         // ─── A4 at 96 dpi ───
-        const A4_W = 794;
         const A4_H = 1123;
 
         // ─── Lock bill to exact A4 dimensions for capture ───
@@ -199,10 +200,12 @@ function App() {
         bill.style.left = '0';
         bill.style.top = '0';
         bill.style.margin = '0';
-        bill.style.width = `${A4_W}px`;
+        bill.style.width = '794px';
+        bill.style.minWidth = '794px';
+        bill.style.maxWidth = '794px';
+        bill.style.boxSizing = 'border-box';
         bill.style.height = `${A4_H}px`;
         bill.style.minHeight = `${A4_H}px`;
-        bill.style.maxWidth = 'none';
         bill.style.boxShadow = 'none';
         bill.style.borderRadius = '0';
         bill.style.zIndex = '9999';
@@ -305,9 +308,11 @@ function App() {
             bill.style.top = origStyles.top;
             bill.style.margin = origStyles.margin;
             bill.style.width = origStyles.width;
+            bill.style.minWidth = origStyles.minWidth;
+            bill.style.maxWidth = origStyles.maxWidth;
+            bill.style.boxSizing = origStyles.boxSizing;
             bill.style.height = origStyles.height;
             bill.style.minHeight = origStyles.minHeight;
-            bill.style.maxWidth = origStyles.maxWidth;
             bill.style.boxShadow = origStyles.boxShadow;
             bill.style.borderRadius = origStyles.borderRadius;
             bill.style.zIndex = origStyles.zIndex;
@@ -398,13 +403,13 @@ function App() {
                 scale: 2,
                 useCORS: true,
                 allowTaint: false,
+                width: 794,
+                windowWidth: 794,
                 scrollX: 0,
                 scrollY: 0,
-                windowWidth: A4_W,
                 windowHeight: A4_H,
                 x: 0,
                 y: 0,
-                width: A4_W,
                 height: A4_H,
                 logging: false,
             });
@@ -498,7 +503,21 @@ function App() {
                     <hr className="bill-divider" />
 
                     <div className="services-strip">
-                        Dental Implants &bull; Orthodontics Braces &bull; Invisible Aligners &bull; Root Canal Treatment &bull; Child Dentistry &bull; Crown and Bridge &bull; Complete Dentures &bull; Cosmetic Dentistry
+                      <span style={{ whiteSpace: 'nowrap' }}>Dental Implants</span>
+                      {' -  '}
+                      <span style={{ whiteSpace: 'nowrap' }}>Orthodontics Braces</span>
+                      {' -  '}
+                      <span style={{ whiteSpace: 'nowrap' }}>Invisible Aligners</span>
+                      {' -  '}
+                      <span style={{ whiteSpace: 'nowrap' }}>Root Canal Treatment</span>
+                      {' -  '}
+                      <span style={{ whiteSpace: 'nowrap' }}>Child Dentistry</span>
+                      {' -  '}
+                      <span style={{ whiteSpace: 'nowrap' }}>Crown and Bridge</span>
+                      {' -  '}
+                      <span style={{ whiteSpace: 'nowrap' }}>Complete Dentures</span>
+                      {' -  '}
+                      <span style={{ whiteSpace: 'nowrap' }}>Cosmetic Dentistry</span>
                     </div>
 
                     <div className="address-line">
