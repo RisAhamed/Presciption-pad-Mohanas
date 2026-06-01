@@ -6,6 +6,25 @@ import jsPDF from 'jspdf';
 function App() {
     const billRef = useRef<HTMLDivElement>(null);
 
+    const autoResizeInput = (input: HTMLInputElement) => {
+        // Create a hidden measurer span that mimics the input's font
+        const measurer = document.createElement('span');
+        measurer.style.cssText = `
+            visibility: hidden;
+            position: absolute;
+            white-space: pre;
+            font-size: ${getComputedStyle(input).fontSize};
+            font-family: ${getComputedStyle(input).fontFamily};
+            font-weight: ${getComputedStyle(input).fontWeight};
+            letter-spacing: ${getComputedStyle(input).letterSpacing};
+        `;
+        measurer.textContent = input.value || input.placeholder;
+        document.body.appendChild(measurer);
+        const width = measurer.getBoundingClientRect().width;
+        document.body.removeChild(measurer);
+        input.style.width = `${Math.max(80, Math.ceil(width) + 10)}px`;
+    };
+
     const getBase64Image = (url: string): Promise<string> => {
         return new Promise((resolve) => {
             const img = new window.Image();
@@ -33,6 +52,8 @@ function App() {
         if (dateInput) {
             dateInput.value = today;
         }
+        const nameInput = document.getElementById('patientName') as HTMLInputElement;
+        if (nameInput) autoResizeInput(nameInput);
     }, []);
 
     const updateEmptyRowClasses = () => {
@@ -501,7 +522,14 @@ function App() {
                         <div className="patient-info">
                             This is to certify that
                             <label htmlFor="patientName" style={{ display: 'none' }}>Patient Name</label>
-                            <input type="text" id="patientName" className="input-inline patient-name-input" placeholder="Patient Name" />
+                            <input
+                              type="text"
+                              id="patientName"
+                              className="input-inline patient-name-input"
+                              placeholder="Patient Name"
+                              onChange={(e) => autoResizeInput(e.target as HTMLInputElement)}
+                              onInput={(e) => autoResizeInput(e.target as HTMLInputElement)}
+                            />
                             aged
                             <label htmlFor="patientAge" style={{ display: 'none' }}>Age</label>
                             <input type="number" id="patientAge" className="input-inline age-input" placeholder="00" min="0" max="150" />
@@ -530,7 +558,20 @@ function App() {
                         <div className="amount-section" style={{ marginBottom: '30px' }}>
                             I have performed the above mentioned treatment procedures with informed consent from the patient and received Rs.
                             <label htmlFor="amount" style={{ display: 'none' }}>Amount</label>
-                            <input type="number" id="amount" className="input-inline amount-input" placeholder="0.00" min="0" step="0.01" />
+                            <input
+                            type="text"
+                            id="amount"
+                            className="input-inline amount-input"
+                            placeholder="1000"
+                            style={{
+                                width: '60px',
+                                textAlign: 'center',
+                                padding: '0 2px',
+                                border: 'none',
+                                borderBottom: '1px solid #000',
+                                background: 'transparent'
+                            }}
+                            />
                             for the above mentioned treatment as professional charges.
                         </div>
 
