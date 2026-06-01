@@ -81,7 +81,6 @@ function App() {
         const bill = billRef.current;
         if (!bill) return;
 
-        const billNo = (document.getElementById('billNo') as HTMLInputElement)?.value || 'New';
         const rawDate = (document.getElementById('billDate') as HTMLInputElement)?.value || '';
         const date = rawDate ? rawDate.split('-').reverse().join('-') : 'Date';
 
@@ -430,7 +429,23 @@ function App() {
             // Canvas is exactly A4 — fill the entire page, no blank space
             pdf.addImage(imgData, 'JPEG', 0, 0, 210, 297);
 
-            pdf.save(`DrMohana_Bill_${billNo}_${date}.pdf`);
+            // Get patient name and sanitize it for use in filename
+            const patientName = (document.getElementById('patientName') as HTMLInputElement)?.value?.trim() || 'Patient';
+            const sanitizedName = patientName.replace(/\s+/g, '_').replace(/[^a-zA-Z0-9_]/g, '');
+
+            // Build timestamp: DD-MM-YYYY_HH-MM-SS
+            const now = new Date();
+            const dd = String(now.getDate()).padStart(2, '0');
+            const mm = String(now.getMonth() + 1).padStart(2, '0');
+            const yyyy = now.getFullYear();
+            const hh = String(now.getHours()).padStart(2, '0');
+            const min = String(now.getMinutes()).padStart(2, '0');
+            const ss = String(now.getSeconds()).padStart(2, '0');
+            const timestamp = `${dd}-${mm}-${yyyy}_${hh}-${min}-${ss}`;
+
+            const filename = `DrMohana_${sanitizedName}_${timestamp}.pdf`;
+
+            pdf.save(filename);
         } catch (err) {
             console.error('PDF generation failed:', err);
             restoreStyles();
